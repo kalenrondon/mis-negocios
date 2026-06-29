@@ -1,10 +1,12 @@
 import { useState } from 'react'
-import { Bird, Egg, Fish, Beef, LineChart, Shirt, Bell, FileText, ArrowRight, Wallet, GraduationCap, Car, ChevronDown, ChevronRight } from 'lucide-react'
+import { Bird, Egg, Fish, Beef, LineChart, Shirt, Bell, FileText, ArrowRight, Wallet, GraduationCap, Car, ChevronDown, ChevronRight, TrendingDown, TrendingUp } from 'lucide-react'
 import { Link } from 'react-router-dom'
 import { useRecordatoriosStore } from '../modules/recordatorios/store'
 import { useNotasStore } from '../modules/notas/store'
+import { useGastosPersonalesStore } from '../modules/gastos-personales/store'
 import QuickAddModal from '../components/QuickAddModal'
 import type { Prioridad } from '../modules/recordatorios/types'
+import { formatMoney } from '../modules/trading/utils'
 
 const secciones: { titulo: string; icono: string; defaultOpen?: boolean; items: { to: string; label: string; desc: string; icon: any; color: string; bg: string }[] }[] = [
   { titulo: 'Personal', icono: '📋', defaultOpen: true, items: [
@@ -42,6 +44,7 @@ function PrioridadBadge({ p }: { p: Prioridad }) {
 export default function Dashboard() {
   const { proximos, pendientes } = useRecordatoriosStore()
   const { ordenadas } = useNotasStore()
+  const { getResumenDelMes } = useGastosPersonalesStore()
   const [quickOpen, setQuickOpen] = useState(false)
   const [expanded, setExpanded] = useState<Record<string, boolean>>(() => {
     const initial: Record<string, boolean> = {}
@@ -52,6 +55,9 @@ export default function Dashboard() {
   const h = new Date().getHours()
   const saludo = h < 12 ? 'Buenos días' : h < 18 ? 'Buenas tardes' : 'Buenas noches'
   const hoy = new Date().toLocaleDateString('es-AR', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })
+  const mesActual = new Date().toISOString().slice(0, 7)
+  const resumen = getResumenDelMes(mesActual)
+  const proxRecordatorio = proximos[0]
 
   return (
     <div>
@@ -101,6 +107,30 @@ export default function Dashboard() {
                   {n.contenido && <p className="text-xs text-slate-500 dark:text-slate-400 truncate mt-0.5">{n.contenido}</p>}
                 </Link>
               ))}
+            </div>
+          )}
+        </div>
+      </div>
+
+      <div className="fixed bottom-[84px] right-5 z-30 hidden lg:block">
+        <div className="bg-white dark:bg-slate-800 rounded-xl shadow-lg border border-slate-200 dark:border-slate-700 p-3 min-w-[180px]">
+          <div className="text-[10px] font-medium text-slate-400 dark:text-slate-500 uppercase tracking-wide mb-1.5">Resumen del mes</div>
+          <div className="flex items-center justify-between gap-3 text-sm">
+            <div className="flex items-center gap-1.5 text-green-600">
+              <TrendingUp size={14} />
+              <span className="font-semibold">{formatMoney(resumen.ingresos)}</span>
+            </div>
+            <div className="flex items-center gap-1.5 text-red-600">
+              <TrendingDown size={14} />
+              <span className="font-semibold">{formatMoney(resumen.gastos)}</span>
+            </div>
+          </div>
+          <div className={`text-xs font-semibold mt-1 ${resumen.balance >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+            Balance: {resumen.balance >= 0 ? '+' : ''}{formatMoney(resumen.balance)}
+          </div>
+          {proxRecordatorio && (
+            <div className="mt-1.5 pt-1.5 border-t border-slate-100 dark:border-slate-700 text-[11px] text-slate-500 dark:text-slate-400 truncate">
+              <span className="text-blue-500 font-medium">📌</span> {proxRecordatorio.titulo}
             </div>
           )}
         </div>
