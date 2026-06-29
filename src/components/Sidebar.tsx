@@ -176,7 +176,7 @@ export default function Sidebar({ open, onClose }: { open: boolean; onClose: () 
 
   return (
     <>
-      <aside className="hidden lg:flex w-64 bg-slate-900 text-white min-h-screen p-4 flex-col overflow-y-auto fixed left-0 top-0 [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-thumb]:bg-slate-700 [&::-webkit-scrollbar-thumb]:rounded">
+      <aside className="hidden lg:flex w-64 bg-slate-900 text-white h-screen p-4 flex-col overflow-y-auto fixed left-0 top-0 [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-thumb]:bg-slate-700 [&::-webkit-scrollbar-thumb]:rounded">
         {sidebarContent}
       </aside>
       {open && (
