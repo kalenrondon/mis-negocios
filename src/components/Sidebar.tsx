@@ -15,7 +15,7 @@ const sections: { label: string; links: { to: string; label: string; icon: any }
   ]},
   { label: 'PROYECTOS', links: [
     { to: '/universidad', label: 'Universidad', icon: GraduationCap },
-    { to: '/auto', label: 'Proyecto Auto', icon: Car },
+    { to: '/auto', label: 'Trabajo', icon: Car },
   ]},
   { label: 'AGRO', links: [
     { to: '/pollos', label: 'Pollos de Engorde', icon: Bird },

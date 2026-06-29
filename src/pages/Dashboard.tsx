@@ -14,7 +14,7 @@ const secciones: { titulo: string; icono: string; defaultOpen?: boolean; items: 
   ]},
   { titulo: 'Proyectos', icono: '🚀', defaultOpen: true, items: [
     { to: '/universidad', label: 'Universidad', desc: 'Materias, notas y horarios', icon: GraduationCap, color: 'text-indigo-600', bg: 'bg-indigo-50 dark:bg-indigo-900/20' },
-    { to: '/auto', label: 'Proyecto Auto', desc: 'Ahorro, gastos y plan', icon: Car, color: 'text-sky-600', bg: 'bg-sky-50 dark:bg-sky-900/20' },
+    { to: '/auto', label: 'Trabajo', desc: 'Ahorro, gastos y plan del auto', icon: Car, color: 'text-sky-600', bg: 'bg-sky-50 dark:bg-sky-900/20' },
   ]},
   { titulo: 'Negocios Agros', icono: '🌾', items: [
     { to: '/pollos', label: 'Pollos de Engorde', desc: 'Lotes, empacados, ventas y fiados', icon: Bird, color: 'text-blue-600', bg: 'bg-blue-50 dark:bg-blue-900/20' },
