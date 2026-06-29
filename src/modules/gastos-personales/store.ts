@@ -1,8 +1,15 @@
 import { useSyncExternalStore, useCallback } from 'react'
 import type { MovimientoPersonal, PresupuestoMensual } from './types'
 
-const STORAGE_KEY = 'movimientosPersonales'
-const BUDGET_KEY = 'presupuestoMensual'
+const STORAGE_KEY = 'gastos-personales'
+const BUDGET_KEY = 'gastos-presupuestos'
+
+;(() => {
+  const old = localStorage.getItem('movimientosPersonales')
+  if (old) { localStorage.setItem(STORAGE_KEY, old); localStorage.removeItem('movimientosPersonales') }
+  const oldBudget = localStorage.getItem('presupuestoMensual')
+  if (oldBudget) { localStorage.setItem(BUDGET_KEY, oldBudget); localStorage.removeItem('presupuestoMensual') }
+})()
 
 let store: MovimientoPersonal[] = (() => {
   try { return JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]') as MovimientoPersonal[] }
