@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useMemo } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import {
   useUniversidadStore, updateMateria, deleteMateria,
@@ -9,9 +9,11 @@ import {
   addSesion, deleteSesion,
 } from '../store'
 import type { TareaEstado, ExamenTipo, TareaPrioridad } from '../types'
+import type { ChatMessage } from '../ai-service'
+import { sendChatMessage, buildMateriaContext } from '../ai-service'
 import {
   ArrowLeft, Info, CheckSquare, Brain, Clock, Calendar, BookOpen, Mic, FileText,
-  Plus, Trash2, Pencil, Save, Play, Square,
+  Plus, Trash2, Pencil, Save, Play, Square, Send, Sparkles, Settings2,
 } from 'lucide-react'
 
 type Tab = 'info' | 'tareas' | 'examenes' | 'horario' | 'apuntes' | 'tiempo' | 'ia'
@@ -73,7 +75,7 @@ export default function MateriaDetailPage() {
       {tab === 'horario' && <HorarioTab materiaId={id!} horarios={horarios} />}
       {tab === 'apuntes' && <ApuntesTab materiaId={id!} apuntes={apuntes} />}
       {tab === 'tiempo' && <TiempoTab materiaId={id!} sesiones={sesiones} />}
-      {tab === 'ia' && <IATab />}
+      {tab === 'ia' && <IATab materia={materia} apuntes={apuntes} examenes={examenes} horarios={horarios} tareas={tareas} />}
     </div>
   )
 }
@@ -544,34 +546,131 @@ function TiempoTab({ materiaId, sesiones }: { materiaId: string; sesiones: any[]
   )
 }
 
-function IATab() {
+function IATab({ materia, apuntes, examenes, horarios, tareas }: { materia: any; apuntes: any[]; examenes: any[]; horarios: any[]; tareas: any[] }) {
+  const [feature, setFeature] = useState<string | null>(null)
+  const [messages, setMessages] = useState<ChatMessage[]>([])
+  const [input, setInput] = useState('')
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState('')
+  const [showFeatures, setShowFeatures] = useState(true)
+
+  const materiaContext = useMemo(() => buildMateriaContext(materia, apuntes, examenes, horarios, tareas), [materia, apuntes, examenes, horarios, tareas])
+
   const features = [
-    { icon: FileText, label: 'Resumir documento', desc: 'Resume PDFs, apuntes o textos largos' },
-    { icon: Brain, label: 'Explicar tema', desc: 'Obtené explicaciones claras de cualquier concepto' },
-    { icon: CheckSquare, label: 'Generar preguntas', desc: 'Preguntas de práctica sobre el temario' },
-    { icon: BookOpen, label: 'Crear flashcards', desc: 'Tarjetas de repaso automáticas' },
-    { icon: Mic, label: 'Generar examen', desc: 'Exámenes personalizados con respuestas' },
-    { icon: Info, label: 'Buscar conceptos', desc: 'Buscá definiciones y explicaciones' },
-    { icon: Brain, label: 'Crear mapa mental', desc: 'Mapas conceptuales del contenido' },
-    { icon: Clock, label: 'Resolver dudas', desc: 'Chat con IA sobre la materia' },
+    { key: 'Resumir documento', icon: FileText, desc: 'Resume PDFs, apuntes o textos largos' },
+    { key: 'Explicar tema', icon: Brain, desc: 'Obtené explicaciones claras de cualquier concepto' },
+    { key: 'Generar preguntas', icon: CheckSquare, desc: 'Preguntas de práctica sobre el temario' },
+    { key: 'Crear flashcards', icon: BookOpen, desc: 'Tarjetas de repaso automáticas' },
+    { key: 'Generar examen', icon: Mic, desc: 'Exámenes personalizados con respuestas' },
+    { key: 'Buscar conceptos', icon: Info, desc: 'Buscá definiciones y explicaciones' },
+    { key: 'Crear mapa mental', icon: Brain, desc: 'Mapas conceptuales del contenido' },
+    { key: 'Resolver dudas', icon: Clock, desc: 'Chat con IA sobre la materia' },
   ]
+
+  function startFeature(name: string) {
+    setFeature(name)
+    setMessages([])
+    setError('')
+    setShowFeatures(false)
+  }
+
+  async function handleSend(e: React.FormEvent) {
+    e.preventDefault()
+    if (!input.trim() || loading || !feature) return
+
+    const userMsg: ChatMessage = { role: 'user', content: input.trim() }
+    const newMessages = [...messages, userMsg]
+    setMessages(newMessages)
+    setInput('')
+    setLoading(true)
+    setError('')
+
+    try {
+      const response = await sendChatMessage(feature, newMessages, materiaContext)
+      setMessages(prev => [...prev, { role: 'assistant', content: response }])
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Error de conexión')
+    } finally {
+      setLoading(false)
+    }
+  }
 
   return (
     <div>
-      <div className="bg-gradient-to-br from-purple-50 to-blue-50 dark:from-purple-900/20 dark:to-blue-900/20 rounded-xl border border-purple-200 dark:border-purple-800 p-4 mb-4">
-        <h3 className="font-semibold text-purple-800 dark:text-purple-200 flex items-center gap-2"><Mic size={18} /> Asistente IA</h3>
-        <p className="text-sm text-purple-600 dark:text-purple-300 mt-1">Todas las funciones de IA están listas para conectarse con OpenAI. Próximamente disponible.</p>
-      </div>
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
-        {features.map((f, i) => (
-          <div key={i} className="bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700 p-4 hover:shadow-md transition-shadow opacity-70 hover:opacity-100 cursor-default">
-            <f.icon size={24} className="text-purple-500 mb-2" />
-            <h4 className="font-medium text-sm text-slate-800 dark:text-white">{f.label}</h4>
-            <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">{f.desc}</p>
-            <span className="inline-block mt-2 text-[9px] font-medium text-purple-500 bg-purple-50 dark:bg-purple-900/20 px-1.5 py-0.5 rounded">Próximamente</span>
+      {error && (
+        <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg px-3 py-2 mb-3 text-xs text-red-700 dark:text-red-300">
+          {error}
+          <button onClick={() => setError('')} className="ml-2 underline">Cerrar</button>
+        </div>
+      )}
+
+      {showFeatures ? (
+        <>
+          <div className="bg-gradient-to-br from-purple-50 to-blue-50 dark:from-purple-900/20 dark:to-blue-900/20 rounded-xl border border-purple-200 dark:border-purple-800 p-4 mb-4">
+            <h3 className="font-semibold text-purple-800 dark:text-purple-200 flex items-center gap-2"><Sparkles size={18} /> Asistente IA</h3>
+            <p className="text-sm text-purple-600 dark:text-purple-300 mt-1">Elegí una función para empezar a usar IA en esta materia.</p>
           </div>
-        ))}
-      </div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+            {features.map(f => (
+              <button key={f.key} onClick={() => startFeature(f.key)}
+                className="bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700 p-4 hover:shadow-md hover:border-purple-300 dark:hover:border-purple-700 transition-all text-left cursor-pointer group"
+              >
+                <f.icon size={24} className="text-purple-500 mb-2 group-hover:scale-110 transition-transform" />
+                <h4 className="font-medium text-sm text-slate-800 dark:text-white">{f.key}</h4>
+                <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">{f.desc}</p>
+              </button>
+            ))}
+          </div>
+        </>
+      ) : (
+        <div>
+          <div className="flex items-center justify-between mb-4">
+            <div className="flex items-center gap-2">
+              <button onClick={() => setShowFeatures(true)} className="text-xs text-slate-400 hover:text-slate-600 flex items-center gap-1"><Settings2 size={12} /> Cambiar función</button>
+              <span className="text-xs bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-300 px-2 py-0.5 rounded font-medium">{feature}</span>
+            </div>
+          </div>
+
+          <div className="bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700 mb-4 max-h-96 overflow-y-auto p-3 space-y-3">
+            {messages.length === 0 && (
+              <p className="text-sm text-slate-400 text-center py-8">
+                Escribí tu consulta sobre <strong>{materia?.nombre}</strong>
+              </p>
+            )}
+            {messages.map((msg, i) => (
+              <div key={i} className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
+                <div className={`max-w-[85%] rounded-xl px-3 py-2 text-sm ${msg.role === 'user' ? 'bg-blue-600 text-white rounded-br-sm' : 'bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-200 rounded-bl-sm'}`}>
+                  <p className="whitespace-pre-wrap">{msg.content}</p>
+                </div>
+              </div>
+            ))}
+            {loading && (
+              <div className="flex justify-start">
+                <div className="bg-slate-100 dark:bg-slate-700 rounded-xl rounded-bl-sm px-3 py-2">
+                  <div className="flex gap-1">
+                    <div className="w-2 h-2 bg-slate-400 rounded-full animate-bounce" style={{ animationDelay: '0ms' }} />
+                    <div className="w-2 h-2 bg-slate-400 rounded-full animate-bounce" style={{ animationDelay: '150ms' }} />
+                    <div className="w-2 h-2 bg-slate-400 rounded-full animate-bounce" style={{ animationDelay: '300ms' }} />
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
+
+          <form onSubmit={handleSend} className="flex gap-2">
+            <input
+              value={input}
+              onChange={e => setInput(e.target.value)}
+              placeholder={feature === 'Resumir documento' ? 'Pegá el texto a resumir...' : `Escribí tu consulta sobre ${materia?.nombre}...`}
+              className="flex-1 px-3 py-2.5 rounded-lg border border-slate-300 dark:border-slate-600 dark:bg-slate-700 dark:text-white text-sm focus:outline-none focus:ring-2 focus:ring-purple-500"
+              disabled={loading}
+            />
+            <button type="submit" disabled={loading || !input.trim()} className="bg-purple-600 text-white px-4 py-2.5 rounded-lg hover:bg-purple-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors">
+              <Send size={16} />
+            </button>
+          </form>
+        </div>
+      )}
     </div>
   )
 }
