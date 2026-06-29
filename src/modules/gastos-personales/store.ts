@@ -1,8 +1,9 @@
 import { useSyncExternalStore } from 'react'
-import type { MovimientoPersonal, PresupuestoMensual } from './types'
+import type { MovimientoPersonal, PresupuestoMensual, MetaFinanciera } from './types'
 
 const STORAGE_KEY = 'gastos-personales'
 const BUDGET_KEY = 'gastos-presupuestos'
+const METAS_KEY = 'gastos-metas'
 
 ;(() => {
   const old = localStorage.getItem('movimientosPersonales')
@@ -21,6 +22,11 @@ let presupuestoStore: PresupuestoMensual[] = (() => {
   catch { return [] }
 })()
 
+let metaStore: MetaFinanciera[] = (() => {
+  try { return JSON.parse(localStorage.getItem(METAS_KEY) || '[]') as MetaFinanciera[] }
+  catch { return [] }
+})()
+
 const listeners = new Set<() => void>()
 
 function emit() {
@@ -33,6 +39,10 @@ function persistMovimientos() {
 
 function persistPresupuestos() {
   localStorage.setItem(BUDGET_KEY, JSON.stringify(presupuestoStore))
+}
+
+function persistMetas() {
+  localStorage.setItem(METAS_KEY, JSON.stringify(metaStore))
 }
 
 export function addMovimiento(m: MovimientoPersonal) {
@@ -58,6 +68,30 @@ export function setPresupuesto(mes: string, presupuesto: number) {
   emit()
 }
 
+export function deletePresupuesto(mes: string) {
+  presupuestoStore = presupuestoStore.filter((p) => p.mes !== mes)
+  persistPresupuestos()
+  emit()
+}
+
+export function addMeta(m: MetaFinanciera) {
+  metaStore = [...metaStore, m]
+  persistMetas()
+  emit()
+}
+
+export function updateMeta(id: string, data: Partial<MetaFinanciera>) {
+  metaStore = metaStore.map((m) => (m.id === id ? { ...m, ...data } : m))
+  persistMetas()
+  emit()
+}
+
+export function deleteMeta(id: string) {
+  metaStore = metaStore.filter((m) => m.id !== id)
+  persistMetas()
+  emit()
+}
+
 function subscribe(cb: () => void) {
   listeners.add(cb)
   return () => listeners.delete(cb)
@@ -67,11 +101,17 @@ function getSnapshot() {
   return store
 }
 
+function getMetasSnapshot() {
+  return metaStore
+}
+
 export function useGastosPersonalesStore() {
   const movimientos = useSyncExternalStore(subscribe, getSnapshot, getSnapshot)
+  const metas = useSyncExternalStore(subscribe, getMetasSnapshot, getMetasSnapshot)
 
   return {
     state: movimientos,
+    metas,
     totalIngresos: movimientos.filter((m) => m.tipo === 'ingreso').reduce((s, m) => s + m.monto, 0),
     totalGastos: movimientos.filter((m) => m.tipo === 'gasto').reduce((s, m) => s + m.monto, 0),
     getMovimientosDelMes: (mes: string) => movimientos.filter((m) => m.fecha.startsWith(mes)),

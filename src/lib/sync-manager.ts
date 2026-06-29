@@ -10,7 +10,7 @@ const TABLES = [
   'recordatorios',
   'notas',
   'auto_tareas',
-  'gastos_personales', 'gastos_presupuestos',
+  'gastos_personales', 'gastos_presupuestos', 'gastos_metas',
 ]
 
 export const LOCAL_KEYS: Record<string, string> = {
@@ -39,6 +39,7 @@ export const LOCAL_KEYS: Record<string, string> = {
   auto_tareas: 'auto-tareas',
   gastos_personales: 'gastos-personales',
   gastos_presupuestos: 'gastos-presupuestos',
+  gastos_metas: 'gastos-metas',
 }
 
 export async function pullAllFromSupabase() {

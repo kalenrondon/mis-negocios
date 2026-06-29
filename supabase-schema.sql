@@ -329,3 +329,19 @@ create table gastos_presupuestos (
 );
 alter table gastos_presupuestos enable row level security;
 create policy "Users can CRUD own presupuestos" on gastos_presupuestos for all using (auth.uid() = user_id);
+
+-- Metas y Deudas
+create table gastos_metas (
+  id uuid default gen_random_uuid() primary key,
+  user_id uuid references auth.users not null,
+  tipo text not null check (tipo in ('deuda','prestamo','ahorro','meta')),
+  nombre text not null,
+  monto_objetivo numeric not null,
+  monto_actual numeric not null default 0,
+  fecha_limite date,
+  estado text not null default 'activo' check (estado in ('activo','completado','cancelado')),
+  notas text not null default '',
+  created_at timestamptz default now()
+);
+alter table gastos_metas enable row level security;
+create policy "Users can CRUD own metas" on gastos_metas for all using (auth.uid() = user_id);
