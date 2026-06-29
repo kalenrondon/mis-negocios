@@ -1,13 +1,19 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { login, register } from '../lib/auth-store'
 
 export default function LoginPage() {
-  const [email, setEmail] = useState('')
+  const [email, setEmail] = useState(() => localStorage.getItem('recordarEmail') || '')
   const [password, setPassword] = useState('')
   const [confirmPassword, setConfirmPassword] = useState('')
   const [isRegister, setIsRegister] = useState(false)
   const [error, setError] = useState('')
   const [success, setSuccess] = useState('')
+  const [recordar, setRecordar] = useState(() => !!localStorage.getItem('recordarEmail'))
+
+  useEffect(() => {
+    if (recordar && email) localStorage.setItem('recordarEmail', email)
+    else if (!recordar) localStorage.removeItem('recordarEmail')
+  }, [recordar, email])
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
@@ -30,8 +36,8 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-slate-100 dark:bg-slate-900 p-4">
-      <div className="w-full max-w-sm bg-white dark:bg-slate-800 rounded-2xl shadow-lg border border-slate-200 dark:border-slate-700 p-8">
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-700 via-slate-800 to-slate-900 dark:from-slate-950 dark:via-slate-900 dark:to-black p-4">
+      <div className="w-full max-w-sm bg-white/95 dark:bg-slate-800/95 backdrop-blur-sm rounded-2xl shadow-2xl border border-slate-300/50 dark:border-slate-700/50 p-8">
         <h1 className="text-2xl font-bold text-slate-800 dark:text-white text-center mb-2">Mis Negocios</h1>
         <p className="text-sm text-slate-500 dark:text-slate-400 text-center mb-6">
           {isRegister ? 'Crear una cuenta' : 'Iniciar sesión'}
@@ -51,6 +57,12 @@ export default function LoginPage() {
             <input type="password" required value={password} onChange={(e) => setPassword(e.target.value)}
               className="w-full px-3 py-2 rounded-lg border border-slate-300 dark:border-slate-600 dark:bg-slate-700 dark:text-white text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" />
           </div>
+          {!isRegister && (
+            <label className="flex items-center gap-2 text-sm text-slate-500 dark:text-slate-400 cursor-pointer select-none">
+              <input type="checkbox" checked={recordar} onChange={e => setRecordar(e.target.checked)} className="rounded border-slate-300 dark:border-slate-600" />
+              Recordar email
+            </label>
+          )}
           {isRegister && (
             <div>
               <label className="block text-xs font-medium text-slate-500 dark:text-slate-400 mb-1">Repetir Contraseña</label>
