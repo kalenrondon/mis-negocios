@@ -1,12 +1,21 @@
 import { useState } from 'react'
-import { Bird, Egg, Fish, Beef, LineChart, Shirt, Bell, FileText, ArrowRight, Wallet, Plus } from 'lucide-react'
+import { Bird, Egg, Fish, Beef, LineChart, Shirt, Bell, FileText, ArrowRight, Wallet, Plus, GraduationCap, Car, ChevronDown, ChevronRight } from 'lucide-react'
 import { Link } from 'react-router-dom'
 import { useRecordatoriosStore } from '../modules/recordatorios/store'
 import { useNotasStore } from '../modules/notas/store'
 import QuickAddModal from '../components/QuickAddModal'
 import type { Prioridad } from '../modules/recordatorios/types'
 
-const secciones: { titulo: string; icono: string; items: { to: string; label: string; desc: string; icon: any; color: string; bg: string }[] }[] = [
+const secciones: { titulo: string; icono: string; defaultOpen?: boolean; items: { to: string; label: string; desc: string; icon: any; color: string; bg: string }[] }[] = [
+  { titulo: 'Personal', icono: '📋', defaultOpen: true, items: [
+    { to: '/gastos-personales', label: 'Gastos Personales', desc: 'Control de gastos diarios', icon: Wallet, color: 'text-rose-500', bg: 'bg-rose-50 dark:bg-rose-900/20' },
+    { to: '/recordatorios', label: 'Recordatorios', desc: 'Tareas, fechas y pendientes', icon: Bell, color: 'text-blue-500', bg: 'bg-blue-50 dark:bg-blue-900/20' },
+    { to: '/notas', label: 'Notas', desc: 'Apuntes rápidos', icon: FileText, color: 'text-amber-500', bg: 'bg-amber-50 dark:bg-amber-900/20' },
+  ]},
+  { titulo: 'Proyectos', icono: '🚀', defaultOpen: true, items: [
+    { to: '/universidad', label: 'Universidad', desc: 'Materias, notas y horarios', icon: GraduationCap, color: 'text-indigo-600', bg: 'bg-indigo-50 dark:bg-indigo-900/20' },
+    { to: '/auto', label: 'Proyecto Auto', desc: 'Ahorro, gastos y plan', icon: Car, color: 'text-sky-600', bg: 'bg-sky-50 dark:bg-sky-900/20' },
+  ]},
   { titulo: 'Negocios Agros', icono: '🌾', items: [
     { to: '/pollos', label: 'Pollos de Engorde', desc: 'Lotes, empacados, ventas y fiados', icon: Bird, color: 'text-blue-600', bg: 'bg-blue-50 dark:bg-blue-900/20' },
     { to: '/ponedoras', label: 'Gallinas Ponedoras', desc: 'Postura, huevos, ventas y gastos', icon: Egg, color: 'text-amber-600', bg: 'bg-amber-50 dark:bg-amber-900/20' },
@@ -14,15 +23,10 @@ const secciones: { titulo: string; icono: string; items: { to: string; label: st
     { to: '/vacuno', label: 'Ganado Vacuno', desc: 'Feedlot, ventas, pesajes y gastos', icon: Beef, color: 'text-amber-700', bg: 'bg-amber-50 dark:bg-orange-900/20' },
   ]},
   { titulo: 'Inversiones', icono: '💰', items: [
-    { to: '/trading', label: 'Trading', desc: 'Ganancias y pérdidas por período', icon: LineChart, color: 'text-green-600', bg: 'bg-green-50 dark:bg-green-900/20' },
-  ]},
-  { titulo: 'Personal', icono: '📋', items: [
-    { to: '/recordatorios', label: 'Recordatorios', desc: 'Tareas, fechas y pendientes', icon: Bell, color: 'text-blue-500', bg: 'bg-blue-50 dark:bg-blue-900/20' },
-    { to: '/notas', label: 'Notas', desc: 'Apuntes rápidos y recordatorios', icon: FileText, color: 'text-amber-500', bg: 'bg-amber-50 dark:bg-amber-900/20' },
-    { to: '/gastos-personales', label: 'Gastos Personales', desc: 'Control de gastos diarios', icon: Wallet, color: 'text-rose-500', bg: 'bg-rose-50 dark:bg-rose-900/20' },
+    { to: '/trading', label: 'Trading', desc: 'Ganancias y pérdidas', icon: LineChart, color: 'text-green-600', bg: 'bg-green-50 dark:bg-green-900/20' },
   ]},
   { titulo: 'Otros', icono: '🧵', items: [
-    { to: '/bordado', label: 'Bordado', desc: 'Próximamente', icon: Shirt, color: 'text-purple-600', bg: 'bg-purple-50 dark:bg-purple-900/20' },
+    { to: '/bordado', label: 'Bordado', desc: 'Pedidos y clientes', icon: Shirt, color: 'text-purple-600', bg: 'bg-purple-50 dark:bg-purple-900/20' },
   ]},
 ]
 
@@ -39,6 +43,11 @@ export default function Dashboard() {
   const { proximos, pendientes } = useRecordatoriosStore()
   const { ordenadas } = useNotasStore()
   const [quickOpen, setQuickOpen] = useState(false)
+  const [expanded, setExpanded] = useState<Record<string, boolean>>(() => {
+    const initial: Record<string, boolean> = {}
+    secciones.forEach(s => { if (s.defaultOpen) initial[s.titulo] = true })
+    return initial
+  })
 
   const h = new Date().getHours()
   const saludo = h < 12 ? 'Buenos días' : h < 18 ? 'Buenas tardes' : 'Buenas noches'
@@ -102,28 +111,34 @@ export default function Dashboard() {
         </div>
       </div>
 
-      {secciones.map((sec) => (
-        <div key={sec.titulo} className="mb-8">
-          <h2 className="text-lg font-semibold text-slate-700 dark:text-slate-300 mb-4 flex items-center gap-2">
-            <span>{sec.icono}</span> {sec.titulo}
-          </h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5">
-            {sec.items.map((m) => (
-              <Link
-                key={m.to}
-                to={m.to}
-                className="bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700 p-5 hover:shadow-md hover:border-slate-300 dark:hover:border-slate-600 transition-all"
-              >
-                <div className={`w-11 h-11 ${m.bg} rounded-lg flex items-center justify-center mb-3`}>
-                  <m.icon size={22} className={m.color} />
-                </div>
-                <h3 className="font-semibold text-slate-800 dark:text-white">{m.label}</h3>
-                <p className="text-sm text-slate-500 dark:text-slate-400 mt-0.5">{m.desc}</p>
-              </Link>
-            ))}
+      {secciones.map((sec) => {
+        const open = expanded[sec.titulo] ?? false
+        return (
+          <div key={sec.titulo} className="mb-4">
+            <button onClick={() => setExpanded(prev => ({ ...prev, [sec.titulo]: !open }))} className="w-full flex items-center justify-between text-lg font-semibold text-slate-700 dark:text-slate-300 mb-3 px-1 py-1.5 hover:bg-slate-50 dark:hover:bg-slate-800/50 rounded-lg transition-colors">
+              <span className="flex items-center gap-2"><span>{sec.icono}</span> {sec.titulo}</span>
+              {open ? <ChevronDown size={20} className="text-slate-400" /> : <ChevronRight size={20} className="text-slate-400" />}
+            </button>
+            {open && (
+              <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
+                {sec.items.map((m) => (
+                  <Link
+                    key={m.to}
+                    to={m.to}
+                    className="bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700 p-4 hover:shadow-md hover:border-slate-300 dark:hover:border-slate-600 transition-all"
+                  >
+                    <div className={`w-10 h-10 ${m.bg} rounded-lg flex items-center justify-center mb-2.5`}>
+                      <m.icon size={20} className={m.color} />
+                    </div>
+                    <h3 className="font-semibold text-sm text-slate-800 dark:text-white">{m.label}</h3>
+                    <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">{m.desc}</p>
+                  </Link>
+                ))}
+              </div>
+            )}
           </div>
-        </div>
-      ))}
+        )
+      })}
     </div>
   )
 }

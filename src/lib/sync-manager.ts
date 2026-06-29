@@ -9,6 +9,7 @@ const TABLES = [
   'trading_operaciones',
   'recordatorios',
   'notas',
+  'auto_tareas',
   'gastos_personales', 'gastos_presupuestos',
 ]
 
@@ -35,6 +36,7 @@ export const LOCAL_KEYS: Record<string, string> = {
   trading_operaciones: 'trading-operaciones',
   recordatorios: 'recordatorios',
   notas: 'notas',
+  auto_tareas: 'auto-tareas',
   gastos_personales: 'gastos-personales',
   gastos_presupuestos: 'gastos-presupuestos',
 }

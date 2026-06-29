@@ -1,5 +1,5 @@
 import { NavLink } from 'react-router-dom'
-import { LayoutDashboard, Bird, Egg, Fish, Beef, LineChart, Shirt, Bell, FileText, Wallet, Sun, Moon, RefreshCw, LogOut, Download, Upload, X } from 'lucide-react'
+import { LayoutDashboard, Bird, Egg, Fish, Beef, LineChart, Shirt, Bell, FileText, Wallet, Sun, Moon, RefreshCw, LogOut, Download, Upload, X, GraduationCap, Car } from 'lucide-react'
 import { useState, useEffect } from 'react'
 import { pushAllToSupabase, pullAllFromSupabase } from '../lib/sync-manager'
 import { logout } from '../lib/auth-store'
@@ -12,6 +12,10 @@ const sections: { label: string; links: { to: string; label: string; icon: any }
     { to: '/gastos-personales', label: 'Gastos Personales', icon: Wallet },
     { to: '/recordatorios', label: 'Recordatorios', icon: Bell },
     { to: '/notas', label: 'Notas', icon: FileText },
+  ]},
+  { label: 'PROYECTOS', links: [
+    { to: '/universidad', label: 'Universidad', icon: GraduationCap },
+    { to: '/auto', label: 'Proyecto Auto', icon: Car },
   ]},
   { label: 'AGRO', links: [
     { to: '/pollos', label: 'Pollos de Engorde', icon: Bird },
@@ -109,6 +113,7 @@ export default function Sidebar({ open, onClose }: { open: boolean; onClose: () 
             'tilapias-gastos':'tilapias_gastos','vacuno-lotes':'vacuno_lotes','vacuno-bajas':'vacuno_bajas',
             'vacuno-ventas':'vacuno_ventas','vacuno-gastos':'vacuno_gastos',
             'trading-operaciones':'trading_operaciones','recordatorios':'recordatorios','notas':'notas',
+            'auto-tareas':'auto_tareas',
             'gastos-personales':'gastos_personales','gastos-presupuestos':'gastos_presupuestos',
           })) {
             const raw = localStorage.getItem(key)

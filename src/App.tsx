@@ -2,6 +2,7 @@ import { HashRouter, Routes, Route } from 'react-router-dom'
 import Layout from './components/Layout'
 import AuthGuard from './components/AuthGuard'
 import Dashboard from './pages/Dashboard'
+import AutoPage from './modules/auto/pages/AutoPage'
 import BordadoPage from './modules/bordado/pages/BordadoPage'
 import PollosDashboard from './modules/pollos/pages/PollosDashboard'
 import LoteFormPage from './modules/pollos/pages/LoteFormPage'
@@ -22,6 +23,7 @@ import TradingDashboard from './modules/trading/pages/TradingDashboard'
 import RecordatoriosPage from './modules/recordatorios/pages/RecordatoriosPage'
 import NotasPage from './modules/notas/pages/NotasPage'
 import GastosPersonalesPage from './modules/gastos-personales/pages/GastosPersonalesPage'
+import UniversidadPage from './modules/universidad/pages/UniversidadPage'
 
 export default function App() {
   return (
@@ -49,7 +51,9 @@ export default function App() {
             <Route path="/recordatorios" element={<RecordatoriosPage />} />
             <Route path="/notas" element={<NotasPage />} />
             <Route path="/gastos-personales" element={<GastosPersonalesPage />} />
+            <Route path="/auto" element={<AutoPage />} />
             <Route path="/bordado" element={<BordadoPage />} />
+            <Route path="/universidad" element={<UniversidadPage />} />
           </Route>
         </Routes>
       </HashRouter>
