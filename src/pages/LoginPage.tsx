@@ -4,6 +4,7 @@ import { login, register } from '../lib/auth-store'
 export default function LoginPage() {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
+  const [confirmPassword, setConfirmPassword] = useState('')
   const [isRegister, setIsRegister] = useState(false)
   const [error, setError] = useState('')
   const [success, setSuccess] = useState('')
@@ -12,6 +13,10 @@ export default function LoginPage() {
     e.preventDefault()
     setError('')
     setSuccess('')
+    if (isRegister && password !== confirmPassword) {
+      setError('Las contraseñas no coinciden')
+      return
+    }
     try {
       if (isRegister) {
         await register(email, password)
@@ -46,6 +51,13 @@ export default function LoginPage() {
             <input type="password" required value={password} onChange={(e) => setPassword(e.target.value)}
               className="w-full px-3 py-2 rounded-lg border border-slate-300 dark:border-slate-600 dark:bg-slate-700 dark:text-white text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" />
           </div>
+          {isRegister && (
+            <div>
+              <label className="block text-xs font-medium text-slate-500 dark:text-slate-400 mb-1">Repetir Contraseña</label>
+              <input type="password" required value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)}
+                className="w-full px-3 py-2 rounded-lg border border-slate-300 dark:border-slate-600 dark:bg-slate-700 dark:text-white text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" />
+            </div>
+          )}
           <button type="submit"
             className="w-full bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700 text-sm font-medium">
             {isRegister ? 'Crear cuenta' : 'Iniciar sesión'}
@@ -54,7 +66,7 @@ export default function LoginPage() {
 
         <p className="text-sm text-slate-500 dark:text-slate-400 text-center mt-6">
           {isRegister ? '¿Ya tenés cuenta?' : '¿No tenés cuenta?'}{' '}
-          <button onClick={() => { setIsRegister(!isRegister); setError(''); setSuccess('') }}
+          <button onClick={() => { setIsRegister(!isRegister); setError(''); setSuccess(''); setConfirmPassword('') }}
             className="text-blue-600 hover:text-blue-700 dark:text-blue-400 font-medium">
             {isRegister ? 'Iniciar sesión' : 'Registrarme'}
           </button>
