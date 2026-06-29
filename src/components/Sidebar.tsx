@@ -1,34 +1,14 @@
 import { NavLink } from 'react-router-dom'
-import { LayoutDashboard, Bird, Egg, Fish, Beef, LineChart, Shirt, Bell, FileText, Wallet, Sun, Moon, RefreshCw, LogOut, Download, Upload, X, GraduationCap, Car } from 'lucide-react'
+import { LayoutDashboard, Bird, Egg, Fish, Beef, LineChart, Shirt, Bell, FileText, Wallet, Sun, Moon, RefreshCw, LogOut, Download, Upload, X, GraduationCap, Car, Sprout, ChevronDown, ChevronRight } from 'lucide-react'
 import { useState, useEffect } from 'react'
 import { pushAllToSupabase, pullAllFromSupabase } from '../lib/sync-manager'
 import { logout } from '../lib/auth-store'
 
-const sections: { label: string; links: { to: string; label: string; icon: any }[] }[] = [
-  { label: '', links: [
-    { to: '/', label: 'Dashboard', icon: LayoutDashboard },
-  ]},
-  { label: 'MÁS USADO', links: [
-    { to: '/gastos-personales', label: 'Gastos Personales', icon: Wallet },
-    { to: '/recordatorios', label: 'Recordatorios', icon: Bell },
-    { to: '/notas', label: 'Notas', icon: FileText },
-  ]},
-  { label: 'PROYECTOS', links: [
-    { to: '/universidad', label: 'Universidad', icon: GraduationCap },
-    { to: '/auto', label: 'Trabajo', icon: Car },
-  ]},
-  { label: 'AGRO', links: [
-    { to: '/pollos', label: 'Pollos de Engorde', icon: Bird },
-    { to: '/ponedoras', label: 'Gallinas Ponedoras', icon: Egg },
-    { to: '/tilapias', label: 'Tilapias', icon: Fish },
-    { to: '/vacuno', label: 'Ganado Vacuno', icon: Beef },
-  ]},
-  { label: 'INVERSIONES', links: [
-    { to: '/trading', label: 'Trading', icon: LineChart },
-  ]},
-  { label: 'OTROS', links: [
-    { to: '/bordado', label: 'Bordado', icon: Shirt },
-  ]},
+const agroItems = [
+  { to: '/pollos', label: 'Pollos de Engorde', icon: Bird },
+  { to: '/ponedoras', label: 'Gallinas Ponedoras', icon: Egg },
+  { to: '/tilapias', label: 'Tilapias', icon: Fish },
+  { to: '/vacuno', label: 'Ganado Vacuno', icon: Beef },
 ]
 
 function NavItem({ to, end, icon: Icon, label, onClick }: { to: string; end?: boolean; icon: any; label: string; onClick?: () => void }) {
@@ -52,6 +32,7 @@ function NavItem({ to, end, icon: Icon, label, onClick }: { to: string; end?: bo
 export default function Sidebar({ open, onClose }: { open: boolean; onClose: () => void }) {
   const [dark, setDark] = useState(() => document.documentElement.classList.contains('dark'))
   const [syncing, setSyncing] = useState(false)
+  const [agroOpen, setAgroOpen] = useState(false)
 
   useEffect(() => {
     const observer = new MutationObserver(() => {
@@ -68,6 +49,8 @@ export default function Sidebar({ open, onClose }: { open: boolean; onClose: () 
     localStorage.setItem('darkMode', String(next))
   }
 
+  const isAgroActive = agroItems.some(item => window.location.hash.includes(item.to))
+
   const sidebarContent = (
     <>
       <div className="flex items-center justify-between mb-6 px-2">
@@ -75,16 +58,41 @@ export default function Sidebar({ open, onClose }: { open: boolean; onClose: () 
         <button onClick={onClose} className="lg:hidden p-1 text-slate-400 hover:text-white"><X size={22} /></button>
       </div>
       <nav className="flex flex-col gap-1 flex-1">
-        {sections.map((sec) => (
-          <div key={sec.label}>
-            {sec.label && (
-              <p className="text-[10px] font-semibold uppercase tracking-widest text-slate-500 px-3 pt-3 pb-1">{sec.label}</p>
-            )}
-            {sec.links.map((link) => (
-              <NavItem key={link.to} to={link.to} end={link.to === '/'} icon={link.icon} label={link.label} onClick={onClose} />
-            ))}
-          </div>
-        ))}
+        <div>
+          <p className="text-[10px] font-semibold uppercase tracking-widest text-slate-500 px-3 pt-3 pb-1">Dashboard</p>
+          <NavItem to="/" end icon={LayoutDashboard} label="Dashboard" onClick={onClose} />
+        </div>
+        <div>
+          <p className="text-[10px] font-semibold uppercase tracking-widest text-slate-500 px-3 pt-3 pb-1">MÁS USADO</p>
+          <NavItem to="/gastos-personales" icon={Wallet} label="Gastos Personales" onClick={onClose} />
+          <NavItem to="/recordatorios" icon={Bell} label="Recordatorios" onClick={onClose} />
+          <NavItem to="/notas" icon={FileText} label="Notas" onClick={onClose} />
+        </div>
+        <div>
+          <p className="text-[10px] font-semibold uppercase tracking-widest text-slate-500 px-3 pt-3 pb-1">PROYECTOS</p>
+          <NavItem to="/universidad" icon={GraduationCap} label="Universidad" onClick={onClose} />
+          <NavItem to="/auto" icon={Car} label="Trabajo" onClick={onClose} />
+        </div>
+        <div>
+          <p className="text-[10px] font-semibold uppercase tracking-widest text-slate-500 px-3 pt-3 pb-1">AGRO</p>
+          <button onClick={() => setAgroOpen(!agroOpen)} className={`w-full flex items-center justify-between gap-3 px-3 py-3 min-h-[44px] rounded-lg transition-colors ${isAgroActive ? 'bg-slate-700 text-white' : 'text-slate-400 hover:text-white hover:bg-slate-800'}`}>
+            <span className="flex items-center gap-3"><Sprout size={20} /><span className="text-sm">Agro</span></span>
+            {agroOpen ? <ChevronDown size={16} /> : <ChevronRight size={16} />}
+          </button>
+          {agroOpen && (
+            <div className="ml-3 mt-1 flex flex-col gap-0.5">
+              {agroItems.map(item => <NavItem key={item.to} to={item.to} icon={item.icon} label={item.label} onClick={() => { onClose(); setAgroOpen(false) }} />)}
+            </div>
+          )}
+        </div>
+        <div>
+          <p className="text-[10px] font-semibold uppercase tracking-widest text-slate-500 px-3 pt-3 pb-1">INVERSIONES</p>
+          <NavItem to="/trading" icon={LineChart} label="Trading" onClick={onClose} />
+        </div>
+        <div>
+          <p className="text-[10px] font-semibold uppercase tracking-widest text-slate-500 px-3 pt-3 pb-1">OTROS</p>
+          <NavItem to="/bordado" icon={Shirt} label="Bordado" onClick={onClose} />
+        </div>
       </nav>
       <button
         onClick={async () => {
@@ -168,11 +176,11 @@ export default function Sidebar({ open, onClose }: { open: boolean; onClose: () 
 
   return (
     <>
-      <aside className="hidden lg:flex w-64 bg-slate-900 text-white min-h-screen p-4 flex-col overflow-y-auto fixed left-0 top-0">
+      <aside className="hidden lg:flex w-64 bg-slate-900 text-white min-h-screen p-4 flex-col overflow-y-auto fixed left-0 top-0 [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-thumb]:bg-slate-700 [&::-webkit-scrollbar-thumb]:rounded">
         {sidebarContent}
       </aside>
       {open && (
-        <aside className="lg:hidden fixed inset-y-0 left-0 z-30 w-72 bg-slate-900 text-white p-4 flex flex-col overflow-y-auto shadow-2xl">
+        <aside className="lg:hidden fixed inset-y-0 left-0 z-30 w-72 bg-slate-900 text-white p-4 flex flex-col overflow-y-auto shadow-2xl [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-thumb]:bg-slate-700 [&::-webkit-scrollbar-thumb]:rounded">
           {sidebarContent}
         </aside>
       )}
