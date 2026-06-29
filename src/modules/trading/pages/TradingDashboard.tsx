@@ -197,7 +197,7 @@ export default function TradingDashboard() {
             <h2 className="font-semibold text-slate-700 dark:text-slate-300">Todas las Operaciones</h2>
             <div className="relative">
               <Search size={14} className="absolute left-2.5 top-1/2 -translate-y-1/2 text-slate-400" />
-              <input type="text" placeholder="Filtrar activo..." value={searchActivo} onChange={e => setSearchActivo(e.target.value.toUpperCase())} className="pl-8 pr-3 py-1.5 text-xs rounded-lg border border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-700 text-slate-800 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 w-40" />
+              <input type="text" placeholder="Filtrar activo..." value={searchActivo} onChange={e => setSearchActivo(e.target.value.toUpperCase())} className="pl-8 pr-3 py-1.5 text-xs rounded-lg border border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-700 text-slate-800 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 w-full max-w-[200px]" />
             </div>
           </div>
           {tradesOrdenados.length === 0 ? (

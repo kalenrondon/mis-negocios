@@ -1,5 +1,5 @@
 import { NavLink } from 'react-router-dom'
-import { LayoutDashboard, Bird, Egg, Fish, Beef, LineChart, Shirt, Bell, FileText, Wallet, Sun, Moon, RefreshCw, LogOut, Download, Upload } from 'lucide-react'
+import { LayoutDashboard, Bird, Egg, Fish, Beef, LineChart, Shirt, Bell, FileText, Wallet, Sun, Moon, RefreshCw, LogOut, Download, Upload, X } from 'lucide-react'
 import { useState, useEffect } from 'react'
 import { pushAllToSupabase, pullAllFromSupabase } from '../lib/sync-manager'
 import { logout } from '../lib/auth-store'
@@ -27,7 +27,25 @@ const sections: { label: string; links: { to: string; label: string; icon: any }
   ]},
 ]
 
-export default function Sidebar() {
+function NavItem({ to, end, icon: Icon, label, onClick }: { to: string; end?: boolean; icon: any; label: string; onClick?: () => void }) {
+  return (
+    <NavLink
+      to={to}
+      end={end}
+      onClick={onClick}
+      className={({ isActive }) =>
+        `flex items-center gap-3 px-3 py-3 min-h-[44px] rounded-lg transition-colors ${
+          isActive ? 'bg-slate-700 text-white' : 'text-slate-400 hover:text-white hover:bg-slate-800'
+        }`
+      }
+    >
+      <Icon size={20} />
+      <span className="text-sm">{label}</span>
+    </NavLink>
+  )
+}
+
+export default function Sidebar({ open, onClose }: { open: boolean; onClose: () => void }) {
   const [dark, setDark] = useState(() => document.documentElement.classList.contains('dark'))
   const [syncing, setSyncing] = useState(false)
 
@@ -46,9 +64,12 @@ export default function Sidebar() {
     localStorage.setItem('darkMode', String(next))
   }
 
-  return (
-    <aside className="w-64 bg-slate-900 text-white min-h-screen p-4 flex flex-col overflow-y-auto">
-      <h1 className="text-xl font-bold mb-6 px-2">Mis Negocios</h1>
+  const sidebarContent = (
+    <>
+      <div className="flex items-center justify-between mb-6 px-2">
+        <h1 className="text-xl font-bold">Mis Negocios</h1>
+        <button onClick={onClose} className="lg:hidden p-1 text-slate-400 hover:text-white"><X size={22} /></button>
+      </div>
       <nav className="flex flex-col gap-1 flex-1">
         {sections.map((sec) => (
           <div key={sec.label}>
@@ -56,19 +77,7 @@ export default function Sidebar() {
               <p className="text-[10px] font-semibold uppercase tracking-widest text-slate-500 px-3 pt-3 pb-1">{sec.label}</p>
             )}
             {sec.links.map((link) => (
-              <NavLink
-                key={link.to}
-                to={link.to}
-                end={link.to === '/'}
-                className={({ isActive }) =>
-                  `flex items-center gap-3 px-3 py-2 rounded-lg transition-colors ${
-                    isActive ? 'bg-slate-700 text-white' : 'text-slate-400 hover:text-white hover:bg-slate-800'
-                  }`
-                }
-              >
-                <link.icon size={18} />
-                <span className="text-sm">{link.label}</span>
-              </NavLink>
+              <NavItem key={link.to} to={link.to} end={link.to === '/'} icon={link.icon} label={link.label} onClick={onClose} />
             ))}
           </div>
         ))}
@@ -83,9 +92,9 @@ export default function Sidebar() {
           setSyncing(false)
         }}
         disabled={syncing}
-        className="flex items-center gap-3 px-3 py-2 rounded-lg transition-colors text-slate-400 hover:text-white hover:bg-slate-800"
+        className="flex items-center gap-3 px-3 py-3 min-h-[44px] rounded-lg transition-colors text-slate-400 hover:text-white hover:bg-slate-800"
       >
-        <RefreshCw size={18} className={syncing ? 'animate-spin' : ''} />
+        <RefreshCw size={20} className={syncing ? 'animate-spin' : ''} />
         <span className="text-sm">{syncing ? 'Sincronizando...' : 'Sincronizar'}</span>
       </button>
       <button
@@ -111,13 +120,13 @@ export default function Sidebar() {
           a.download = `mis-negocios-backup-${new Date().toISOString().slice(0,10)}.json`
           a.click()
         }}
-        className="flex items-center gap-3 px-3 py-2 rounded-lg transition-colors text-slate-400 hover:text-white hover:bg-slate-800"
+        className="flex items-center gap-3 px-3 py-3 min-h-[44px] rounded-lg transition-colors text-slate-400 hover:text-white hover:bg-slate-800"
       >
-        <Download size={18} />
+        <Download size={20} />
         <span className="text-sm">Exportar Backup</span>
       </button>
-      <label className="flex items-center gap-3 px-3 py-2 rounded-lg transition-colors text-slate-400 hover:text-white hover:bg-slate-800 cursor-pointer">
-        <Upload size={18} />
+      <label className="flex items-center gap-3 px-3 py-3 min-h-[44px] rounded-lg transition-colors text-slate-400 hover:text-white hover:bg-slate-800 cursor-pointer">
+        <Upload size={20} />
         <span className="text-sm">Importar Backup</span>
         <input type="file" accept=".json" className="hidden" onChange={(e) => {
           const file = e.target.files?.[0]
@@ -136,19 +145,32 @@ export default function Sidebar() {
         }} />
       </label>
       <button
-        onClick={logout}
-        className="flex items-center gap-3 px-3 py-2 rounded-lg transition-colors text-slate-400 hover:text-white hover:bg-slate-800"
+        onClick={() => { logout(); onClose() }}
+        className="flex items-center gap-3 px-3 py-3 min-h-[44px] rounded-lg transition-colors text-slate-400 hover:text-white hover:bg-slate-800"
       >
-        <LogOut size={18} />
+        <LogOut size={20} />
         <span className="text-sm">Cerrar Sesión</span>
       </button>
       <button
         onClick={toggle}
-        className="flex items-center gap-3 px-3 py-2 rounded-lg transition-colors text-slate-400 hover:text-white hover:bg-slate-800 mt-1"
+        className="flex items-center gap-3 px-3 py-3 min-h-[44px] rounded-lg transition-colors text-slate-400 hover:text-white hover:bg-slate-800 mt-1"
       >
-        {dark ? <Sun size={18} /> : <Moon size={18} />}
+        {dark ? <Sun size={20} /> : <Moon size={20} />}
         <span className="text-sm">{dark ? 'Modo Claro' : 'Modo Oscuro'}</span>
       </button>
-    </aside>
+    </>
+  )
+
+  return (
+    <>
+      <aside className="hidden lg:flex w-64 bg-slate-900 text-white min-h-screen p-4 flex-col overflow-y-auto fixed left-0 top-0">
+        {sidebarContent}
+      </aside>
+      {open && (
+        <aside className="lg:hidden fixed inset-y-0 left-0 z-30 w-72 bg-slate-900 text-white p-4 flex flex-col overflow-y-auto shadow-2xl">
+          {sidebarContent}
+        </aside>
+      )}
+    </>
   )
 }
