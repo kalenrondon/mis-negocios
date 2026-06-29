@@ -1,5 +1,5 @@
 import { NavLink } from 'react-router-dom'
-import { LayoutDashboard, Bird, Egg, Fish, Beef, LineChart, Shirt, Bell, FileText, Wallet, Sun, Moon, RefreshCw, LogOut, Download, Upload, X, GraduationCap, Car, Sprout, ChevronDown, ChevronRight } from 'lucide-react'
+import { LayoutDashboard, Bird, Egg, Fish, Beef, LineChart, Shirt, Bell, FileText, Wallet, Sun, Moon, RefreshCw, LogOut, Download, Upload, X, GraduationCap, Car, Sprout, ChevronDown, ChevronRight, Settings } from 'lucide-react'
 import { useState, useEffect } from 'react'
 import { pushAllToSupabase, pullAllFromSupabase, LOCAL_KEYS } from '../lib/sync-manager'
 import { logout } from '../lib/auth-store'
@@ -92,6 +92,7 @@ export default function Sidebar({ open, onClose }: { open: boolean; onClose: () 
         <div>
           <p className="text-[10px] font-semibold uppercase tracking-widest text-slate-500 px-3 pt-3 pb-1">OTROS</p>
           <NavItem to="/bordado" icon={Shirt} label="Bordado" onClick={onClose} />
+          <NavItem to="/ajustes" icon={Settings} label="Ajustes" onClick={onClose} />
         </div>
       </nav>
       <button

@@ -345,3 +345,19 @@ create table gastos_metas (
 );
 alter table gastos_metas enable row level security;
 create policy "Users can CRUD own metas" on gastos_metas for all using (auth.uid() = user_id);
+
+-- Captura Rápida (Quick Entry)
+create table quick_entries (
+  id uuid default gen_random_uuid() primary key,
+  user_id uuid references auth.users not null,
+  fecha date not null default current_date,
+  tipo text not null check (tipo in ('ingreso','gasto')),
+  categoria text not null,
+  descripcion text not null,
+  monto numeric not null,
+  texto_original text not null,
+  dispositivo text not null default 'unknown',
+  created_at timestamptz default now()
+);
+alter table quick_entries enable row level security;
+create policy "Users can CRUD own quick_entries" on quick_entries for all using (auth.uid() = user_id);
