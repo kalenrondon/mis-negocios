@@ -1,7 +1,9 @@
-import { Bird, Egg, Fish, Beef, LineChart, Shirt, Bell, FileText, ArrowRight, Wallet } from 'lucide-react'
+import { useState } from 'react'
+import { Bird, Egg, Fish, Beef, LineChart, Shirt, Bell, FileText, ArrowRight, Wallet, Plus } from 'lucide-react'
 import { Link } from 'react-router-dom'
 import { useRecordatoriosStore } from '../modules/recordatorios/store'
 import { useNotasStore } from '../modules/notas/store'
+import QuickAddModal from '../components/QuickAddModal'
 import type { Prioridad } from '../modules/recordatorios/types'
 
 const secciones: { titulo: string; icono: string; items: { to: string; label: string; desc: string; icon: any; color: string; bg: string }[] }[] = [
@@ -36,6 +38,7 @@ function PrioridadBadge({ p }: { p: Prioridad }) {
 export default function Dashboard() {
   const { proximos, pendientes } = useRecordatoriosStore()
   const { ordenadas } = useNotasStore()
+  const [quickOpen, setQuickOpen] = useState(false)
 
   const h = new Date().getHours()
   const saludo = h < 12 ? 'Buenos días' : h < 18 ? 'Buenas tardes' : 'Buenas noches'
@@ -43,10 +46,16 @@ export default function Dashboard() {
 
   return (
     <div>
-      <div className="mb-8">
-        <h1 className="text-2xl font-bold text-slate-800 dark:text-white">{saludo} 👋</h1>
-        <p className="text-slate-500 dark:text-slate-400 capitalize">{hoy}</p>
+      <div className="flex items-start justify-between mb-8">
+        <div>
+          <h1 className="text-2xl font-bold text-slate-800 dark:text-white">{saludo} 👋</h1>
+          <p className="text-slate-500 dark:text-slate-400 capitalize">{hoy}</p>
+        </div>
+        <button onClick={() => setQuickOpen(true)} className="hidden sm:flex items-center gap-2 bg-blue-600 text-white px-4 py-2 rounded-xl hover:bg-blue-700 text-sm font-medium shadow-sm">
+          <Plus size={18} /> Agregar
+        </button>
       </div>
+      {quickOpen && <QuickAddModal onClose={() => setQuickOpen(false)} />}
 
       <div className="grid grid-cols-1 xl:grid-cols-2 gap-6 mb-8">
         {proximos.length > 0 && (

@@ -8,10 +8,10 @@ const sections: { label: string; links: { to: string; label: string; icon: any }
   { label: '', links: [
     { to: '/', label: 'Dashboard', icon: LayoutDashboard },
   ]},
-  { label: 'PERSONAL', links: [
+  { label: 'MÁS USADO', links: [
+    { to: '/gastos-personales', label: 'Gastos Personales', icon: Wallet },
     { to: '/recordatorios', label: 'Recordatorios', icon: Bell },
     { to: '/notas', label: 'Notas', icon: FileText },
-    { to: '/gastos-personales', label: 'Gastos Personales', icon: Wallet },
   ]},
   { label: 'AGRO', links: [
     { to: '/pollos', label: 'Pollos de Engorde', icon: Bird },
