@@ -68,6 +68,44 @@ export default function Dashboard() {
       {quickOpen && <QuickAddModal onClose={() => setQuickOpen(false)} />}
 
       <div className="grid grid-cols-1 xl:grid-cols-2 gap-6 mb-8">
+        <div className="bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700 p-4">
+          <div className="flex items-center justify-between mb-3">
+            <h2 className="font-semibold text-slate-700 dark:text-slate-300 flex items-center gap-2"><Wallet size={18} className="text-rose-500" /> Resumen del mes</h2>
+            <Link to="/gastos-personales" className="text-xs text-blue-600 hover:text-blue-700 dark:text-blue-400 flex items-center gap-0.5">Ver más <ArrowRight size={12} /></Link>
+          </div>
+          <div className="grid grid-cols-3 gap-3">
+            <div>
+              <div className="text-[10px] font-medium text-slate-400 dark:text-slate-500 uppercase tracking-wide mb-0.5">Ingresos</div>
+              <div className="flex items-center gap-1 text-green-600 font-semibold text-sm"><TrendingUp size={14} />{formatMoney(resumen.ingresos)}</div>
+            </div>
+            <div>
+              <div className="text-[10px] font-medium text-slate-400 dark:text-slate-500 uppercase tracking-wide mb-0.5">Gastos</div>
+              <div className="flex items-center gap-1 text-red-600 font-semibold text-sm"><TrendingDown size={14} />{formatMoney(resumen.gastos)}</div>
+            </div>
+            <div>
+              <div className="text-[10px] font-medium text-slate-400 dark:text-slate-500 uppercase tracking-wide mb-0.5">Balance</div>
+              <div className={`font-semibold text-sm ${resumen.balance >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+                {resumen.balance >= 0 ? '+' : ''}{formatMoney(resumen.balance)}
+              </div>
+            </div>
+          </div>
+          {resumen.presupuesto > 0 && (
+            <div className="mt-3 pt-3 border-t border-slate-100 dark:border-slate-700">
+              <div className="flex items-center justify-between text-xs text-slate-500 dark:text-slate-400 mb-1">
+                <span>Presupuesto</span>
+                <span>{formatMoney(resumen.gastos)} / {formatMoney(resumen.presupuesto)} ({resumen.usadoPresupuesto.toFixed(0)}%)</span>
+              </div>
+              <div className="w-full bg-slate-200 dark:bg-slate-700 rounded-full h-1.5 overflow-hidden">
+                <div className={`h-full rounded-full ${resumen.usadoPresupuesto > 100 ? 'bg-red-500' : resumen.usadoPresupuesto > 80 ? 'bg-amber-500' : 'bg-green-500'}`} style={{ width: `${Math.min(resumen.usadoPresupuesto, 100)}%` }} />
+              </div>
+            </div>
+          )}
+          {proxRecordatorio && (
+            <div className="mt-3 pt-3 border-t border-slate-100 dark:border-slate-700 flex items-center gap-1.5 text-xs text-slate-500 dark:text-slate-400">
+              <Bell size={12} className="text-blue-500" /> Próximo: {proxRecordatorio.titulo}
+            </div>
+          )}
+        </div>
         {proximos.length > 0 && (
           <div className="bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700 p-4">
             <div className="flex items-center justify-between mb-3">
@@ -107,30 +145,6 @@ export default function Dashboard() {
                   {n.contenido && <p className="text-xs text-slate-500 dark:text-slate-400 truncate mt-0.5">{n.contenido}</p>}
                 </Link>
               ))}
-            </div>
-          )}
-        </div>
-      </div>
-
-      <div className="fixed bottom-[84px] right-5 z-30 hidden lg:block">
-        <div className="bg-white dark:bg-slate-800 rounded-xl shadow-lg border border-slate-200 dark:border-slate-700 p-3 min-w-[180px]">
-          <div className="text-[10px] font-medium text-slate-400 dark:text-slate-500 uppercase tracking-wide mb-1.5">Resumen del mes</div>
-          <div className="flex items-center justify-between gap-3 text-sm">
-            <div className="flex items-center gap-1.5 text-green-600">
-              <TrendingUp size={14} />
-              <span className="font-semibold">{formatMoney(resumen.ingresos)}</span>
-            </div>
-            <div className="flex items-center gap-1.5 text-red-600">
-              <TrendingDown size={14} />
-              <span className="font-semibold">{formatMoney(resumen.gastos)}</span>
-            </div>
-          </div>
-          <div className={`text-xs font-semibold mt-1 ${resumen.balance >= 0 ? 'text-green-600' : 'text-red-600'}`}>
-            Balance: {resumen.balance >= 0 ? '+' : ''}{formatMoney(resumen.balance)}
-          </div>
-          {proxRecordatorio && (
-            <div className="mt-1.5 pt-1.5 border-t border-slate-100 dark:border-slate-700 text-[11px] text-slate-500 dark:text-slate-400 truncate">
-              <span className="text-blue-500 font-medium">📌</span> {proxRecordatorio.titulo}
             </div>
           )}
         </div>
