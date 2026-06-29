@@ -10,6 +10,7 @@ const TABLES = [
   'recordatorios',
   'notas',
   'auto_tareas',
+  'universidad_data',
   'gastos_personales', 'gastos_presupuestos', 'gastos_metas', 'quick_entries',
 ]
 
@@ -37,6 +38,7 @@ export const LOCAL_KEYS: Record<string, string> = {
   recordatorios: 'recordatorios',
   notas: 'notas',
   auto_tareas: 'auto-tareas',
+  universidad_data: 'universidad-data',
   gastos_personales: 'gastos-personales',
   gastos_presupuestos: 'gastos-presupuestos',
   gastos_metas: 'gastos-metas',

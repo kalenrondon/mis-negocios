@@ -1,5 +1,5 @@
 import { NavLink } from 'react-router-dom'
-import { LayoutDashboard, Bird, Egg, Fish, Beef, LineChart, Shirt, Bell, FileText, Wallet, Sun, Moon, RefreshCw, LogOut, Download, Upload, X, GraduationCap, Car, Sprout, ChevronDown, ChevronRight, Settings } from 'lucide-react'
+import { LayoutDashboard, Bird, Egg, Fish, Beef, LineChart, Shirt, Bell, FileText, Wallet, Sun, Moon, RefreshCw, LogOut, Download, Upload, X, GraduationCap, Car, Sprout, ChevronDown, ChevronRight, Settings, Archive } from 'lucide-react'
 import { useState, useEffect } from 'react'
 import { pushAllToSupabase, pullAllFromSupabase, LOCAL_KEYS } from '../lib/sync-manager'
 import { logout } from '../lib/auth-store'
@@ -33,6 +33,7 @@ export default function Sidebar({ open, onClose }: { open: boolean; onClose: () 
   const [dark, setDark] = useState(() => document.documentElement.classList.contains('dark'))
   const [syncing, setSyncing] = useState(false)
   const [agroOpen, setAgroOpen] = useState(false)
+  const [avanzadoOpen, setAvanzadoOpen] = useState(false)
 
   useEffect(() => {
     const observer = new MutationObserver(() => {
@@ -110,43 +111,48 @@ export default function Sidebar({ open, onClose }: { open: boolean; onClose: () 
         <RefreshCw size={20} className={syncing ? 'animate-spin' : ''} />
         <span className="text-sm">{syncing ? 'Sincronizando...' : 'Sincronizar'}</span>
       </button>
-      <button
-        onClick={() => {
-          const data: Record<string, any> = {}
-          for (const [, localKey] of Object.entries(LOCAL_KEYS)) {
-            const raw = localStorage.getItem(localKey)
-            if (raw) data[localKey] = JSON.parse(raw)
-          }
-          const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' })
-          const a = document.createElement('a')
-          a.href = URL.createObjectURL(blob)
-          a.download = `mis-negocios-backup-${new Date().toISOString().slice(0,10)}.json`
-          a.click()
-        }}
-        className="flex items-center gap-3 px-3 py-3 min-h-[44px] rounded-lg transition-colors text-slate-400 hover:text-white hover:bg-slate-800"
-      >
-        <Download size={20} />
-        <span className="text-sm">Exportar Backup</span>
+      <button onClick={() => setAvanzadoOpen(!avanzadoOpen)} className="w-full flex items-center justify-between gap-3 px-3 py-3 min-h-[44px] rounded-lg transition-colors text-slate-400 hover:text-white hover:bg-slate-800 mt-1">
+        <span className="flex items-center gap-3"><Archive size={18} /><span className="text-sm">Avanzado</span></span>
+        {avanzadoOpen ? <ChevronDown size={16} /> : <ChevronRight size={16} />}
       </button>
-      <label className="flex items-center gap-3 px-3 py-3 min-h-[44px] rounded-lg transition-colors text-slate-400 hover:text-white hover:bg-slate-800 cursor-pointer">
-        <Upload size={20} />
-        <span className="text-sm">Importar Backup</span>
-        <input type="file" accept=".json" className="hidden" onChange={(e) => {
-          const file = e.target.files?.[0]
-          if (!file) return
-          const reader = new FileReader()
-          reader.onload = (ev) => {
-            try {
-              const data = JSON.parse(ev.target?.result as string)
-              for (const [table, records] of Object.entries(data)) {
-                localStorage.setItem(table, JSON.stringify(records))
+      {avanzadoOpen && (
+        <>
+          <button onClick={() => {
+            const data: Record<string, any> = {}
+            for (const [, localKey] of Object.entries(LOCAL_KEYS)) {
+              const raw = localStorage.getItem(localKey)
+              if (raw) data[localKey] = JSON.parse(raw)
+            }
+            const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' })
+            const a = document.createElement('a')
+            a.href = URL.createObjectURL(blob)
+            a.download = `mis-negocios-backup-${new Date().toISOString().slice(0,10)}.json`
+            a.click()
+          }} className="flex items-center gap-3 px-3 py-3 min-h-[44px] rounded-lg transition-colors text-slate-400 hover:text-white hover:bg-slate-800 ml-4">
+            <Download size={16} />
+            <span className="text-sm">Exportar Backup</span>
+          </button>
+          <label className="flex items-center gap-3 px-3 py-3 min-h-[44px] rounded-lg transition-colors text-slate-400 hover:text-white hover:bg-slate-800 cursor-pointer ml-4">
+            <Upload size={16} />
+            <span className="text-sm">Importar Backup</span>
+            <input type="file" accept=".json" className="hidden" onChange={(e) => {
+              const file = e.target.files?.[0]
+              if (!file) return
+              const reader = new FileReader()
+              reader.onload = (ev) => {
+                try {
+                  const data = JSON.parse(ev.target?.result as string)
+                  for (const [table, records] of Object.entries(data)) {
+                    localStorage.setItem(table, JSON.stringify(records))
+                  }
+                  window.location.reload()
+                } catch {}
               }
-              window.location.reload()
-            } catch {}
-          }
-          reader.readAsText(file)
-        }} />
-      </label>
+              reader.readAsText(file)
+            }} />
+          </label>
+        </>
+      )}
       <button
         onClick={() => { logout(); onClose() }}
         className="flex items-center gap-3 px-3 py-3 min-h-[44px] rounded-lg transition-colors text-slate-400 hover:text-white hover:bg-slate-800"

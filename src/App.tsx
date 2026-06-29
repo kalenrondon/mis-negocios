@@ -24,6 +24,7 @@ import RecordatoriosPage from './modules/recordatorios/pages/RecordatoriosPage'
 import NotasPage from './modules/notas/pages/NotasPage'
 import GastosPersonalesPage from './modules/gastos-personales/pages/GastosPersonalesPage'
 import UniversidadPage from './modules/universidad/pages/UniversidadPage'
+import MateriaDetailPage from './modules/universidad/pages/MateriaDetailPage'
 import NotFound from './pages/NotFound'
 import SettingsPage from './pages/SettingsPage'
 
@@ -56,6 +57,7 @@ export default function App() {
             <Route path="/auto" element={<AutoPage />} />
             <Route path="/bordado" element={<BordadoPage />} />
             <Route path="/universidad" element={<UniversidadPage />} />
+            <Route path="/universidad/materia/:id" element={<MateriaDetailPage />} />
             <Route path="/ajustes" element={<SettingsPage />} />
             <Route path="*" element={<NotFound />} />
           </Route>
