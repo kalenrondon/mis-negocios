@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useRecordatoriosStore, addRecordatorio, updateRecordatorio, deleteRecordatorio, toggleCompletado } from '../store'
 import type { Prioridad } from '../types'
 import { Bell, Plus, Trash2, Check, Edit2, X, AlertCircle, AlertTriangle, Info } from 'lucide-react'
@@ -16,6 +16,17 @@ function PrioridadBadge({ p }: { p: Prioridad }) {
 export default function RecordatoriosPage() {
   const { pendientes, completados } = useRecordatoriosStore()
   const [showForm, setShowForm] = useState(false)
+
+  useEffect(() => {
+    const hoy = new Date().toISOString().slice(0, 10)
+    const horaActual = new Date().toTimeString().slice(0, 5)
+    const vencidos = pendientes.filter(r => r.fecha === hoy && (!r.hora || r.hora <= horaActual))
+    for (const r of vencidos) {
+      if ('Notification' in window && Notification.permission === 'granted') {
+        new Notification(r.titulo, { body: r.descripcion || 'Recordatorio para hoy', icon: '/pwa-192x192.png' })
+      }
+    }
+  }, [])
   const [editId, setEditId] = useState<string | null>(null)
   const [titulo, setTitulo] = useState('')
   const [descripcion, setDescripcion] = useState('')

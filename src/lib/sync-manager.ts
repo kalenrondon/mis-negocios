@@ -1,5 +1,5 @@
-import { supabase } from './supabase'
 import { getUserId } from './auth-store'
+import { supabase } from './supabase'
 
 const TABLES = [
   'pollos_lotes', 'pollos_bajas', 'pollos_pesajes', 'pollos_ventas', 'pollos_empacados', 'pollos_gastos',
@@ -12,7 +12,7 @@ const TABLES = [
   'gastos_personales', 'gastos_presupuestos',
 ]
 
-const LOCAL_KEYS: Record<string, string> = {
+export const LOCAL_KEYS: Record<string, string> = {
   pollos_lotes: 'pollos-lotes',
   pollos_bajas: 'pollos-bajas',
   pollos_pesajes: 'pollos-pesajes',
@@ -42,6 +42,7 @@ const LOCAL_KEYS: Record<string, string> = {
 export async function pullAllFromSupabase() {
   const userId = getUserId()
   if (!userId) return
+  ;(window as any).__ignoreSync = true
   for (const table of TABLES) {
     const { data, error } = await supabase.from(table).select('*').eq('user_id', userId)
     if (!error && data) {
@@ -49,6 +50,7 @@ export async function pullAllFromSupabase() {
       if (key) localStorage.setItem(key, JSON.stringify(data))
     }
   }
+  ;(window as any).__ignoreSync = false
   window.dispatchEvent(new CustomEvent('sync-pulled'))
 }
 
