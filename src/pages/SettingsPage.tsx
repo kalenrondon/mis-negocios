@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { ArrowLeft, Key, Smartphone, Shield, Eye, EyeOff, Copy, Check, ExternalLink } from 'lucide-react'
+import { ArrowLeft, Key, Smartphone, Shield, Eye, EyeOff, Copy, Check, ExternalLink, PenBox } from 'lucide-react'
 import { getSettings, saveSettings, generateApiToken, API_URL, useQuickEntries, clearQuickEntries } from '../modules/quick-entry/store'
 
 export default function SettingsPage() {
@@ -153,6 +153,39 @@ export default function SettingsPage() {
               </p>
             </div>
           </div>
+        </div>
+
+        <div className="bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700 p-4">
+          <h2 className="font-semibold text-slate-700 dark:text-slate-300 mb-4 flex items-center gap-2"><PenBox size={18} className="text-purple-500" /> Modo Manual (sin OpenAI)</h2>
+          <p className="text-sm text-slate-500 dark:text-slate-400 mb-3">
+            Sin API Key de OpenAI. Creá un Atajo que envíe los datos directamente.
+          </p>
+          <ol className="list-decimal list-inside space-y-2 text-sm text-slate-600 dark:text-slate-400">
+            <li>Abrí la app <strong>Atajos</strong> en tu iPhone</li>
+            <li>Tocá <strong>+</strong> para crear un nuevo atajo</li>
+            <li>Agregá <strong>"Solicitar entrada"</strong> para cada campo:
+              <div className="ml-4 mt-1 text-xs space-y-1">
+                <p>• <strong>Tipo</strong> — texto (gasto / ingreso)</p>
+                <p>• <strong>Monto</strong> — número</p>
+                <p>• <strong>Categoría</strong> — texto (Alimentación, Transporte, etc.)</p>
+                <p>• <strong>Descripción</strong> — texto</p>
+              </div>
+            </li>
+            <li>Agregá <strong>"Añadir URL"</strong> con la URL del API de arriba</li>
+            <li>Agregá <strong>"Añadir solicitud de obtención de contenido"</strong>:
+              <div className="ml-4 mt-1 text-xs space-y-1">
+                <p>Método: <strong>POST</strong></p>
+                <p>Tipo de contenido: <strong>JSON</strong></p>
+                <p>Cuerpo JSON: <strong>{'{"tipo": "Tipo", "monto": Monto, "categoria": "Categoría", "descripcion": "Descripción", "device": "iphone"}'}</strong></p>
+                <p className="mt-2">Encabezados:</p>
+                <p className="ml-2"><strong>Authorization:</strong> Bearer TU_TOKEN</p>
+                <p className="ml-2"><strong>X-User-Id:</strong> TU_TOKEN</p>
+                <p className="text-amber-600 dark:text-amber-400 mt-1">⚠ Sin X-OpenAI-Key = modo manual</p>
+              </div>
+            </li>
+            <li>Agregá <strong>"Mostrar notificación"</strong> con el resultado</li>
+            <li>Guardá el atajo con el nombre <strong>"➕ Gasto Manual"</strong></li>
+          </ol>
         </div>
 
         <div className="bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700 p-4">

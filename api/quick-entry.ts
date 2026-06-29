@@ -64,6 +64,20 @@ export async function OPTIONS() {
   })
 }
 
+function makeMovimiento(body: any, device: string, textoOriginal: string) {
+  return {
+    id: crypto.randomUUID(),
+    fecha: new Date().toISOString().slice(0, 10),
+    tipo: body.tipo || 'gasto',
+    categoria: body.categoria || 'Otros',
+    descripcion: body.descripcion || '',
+    monto: body.monto || 0,
+    texto_original: textoOriginal,
+    dispositivo: device || 'unknown',
+    created_at: new Date().toISOString(),
+  }
+}
+
 export async function POST(req: Request) {
 
   try {
@@ -71,36 +85,38 @@ export async function POST(req: Request) {
     const openAIKey = req.headers.get('x-openai-key')
     const userId = req.headers.get('x-user-id')
 
-    if (!openAIKey) {
-      return new Response(JSON.stringify({ success: false, error: 'X-OpenAI-Key header required' }), {
-        status: 400,
-        headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' },
-      })
-    }
-
     const body = await req.json()
     const { text, device } = body
 
-    if (!text || typeof text !== 'string') {
-      return new Response(JSON.stringify({ success: false, error: 'text field required' }), {
+    let movimientos: any[]
+
+    if (openAIKey && text && typeof text === 'string') {
+      // MODO INTELIGENTE: usa OpenAI para parsear texto natural
+      const resultado = await callOpenAI(openAIKey, text)
+
+      movimientos = (resultado.movimientos || []).map((m: any) => ({
+        id: crypto.randomUUID(),
+        fecha: new Date().toISOString().slice(0, 10),
+        tipo: resultado.tipo || 'gasto',
+        categoria: m.categoria || 'Otros',
+        descripcion: m.descripcion || text.slice(0, 100),
+        monto: m.monto || 0,
+        texto_original: text,
+        dispositivo: device || 'unknown',
+        created_at: new Date().toISOString(),
+      }))
+    } else if (body.tipo && body.monto) {
+      // MODO MANUAL: datos directos sin OpenAI
+      movimientos = [makeMovimiento(body, device, body.descripcion || '')]
+    } else {
+      return new Response(JSON.stringify({
+        success: false,
+        error: 'Enviá { text } con X-OpenAI-Key para modo inteligente, o { tipo, monto, categoria, descripcion } para modo manual'
+      }), {
         status: 400,
         headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' },
       })
     }
-
-    const resultado = await callOpenAI(openAIKey, text)
-
-    const movimientos = (resultado.movimientos || []).map((m: any) => ({
-      id: crypto.randomUUID(),
-      fecha: new Date().toISOString().slice(0, 10),
-      tipo: resultado.tipo || 'gasto',
-      categoria: m.categoria || 'Otros',
-      descripcion: m.descripcion || text.slice(0, 100),
-      monto: m.monto || 0,
-      texto_original: text,
-      dispositivo: device || 'unknown',
-      created_at: new Date().toISOString(),
-    }))
 
     if (userId && SUPABASE_URL && SUPABASE_SERVICE_KEY) {
       const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_KEY)

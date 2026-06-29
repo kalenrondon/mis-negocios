@@ -98,3 +98,33 @@ export async function sendQuickEntry(text: string, device = 'web') {
 
   return data
 }
+
+export async function sendManualEntry(params: {
+  tipo: string
+  monto: number
+  categoria: string
+  descripcion: string
+  device?: string
+}) {
+  const settings = getSettings()
+  if (!settings.apiToken) throw new Error('Generá un token de API en Ajustes')
+
+  const res = await fetch(API_URL, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${settings.apiToken}`,
+      'X-User-Id': settings.apiToken,
+    },
+    body: JSON.stringify({ ...params, device: params.device || 'shortcut' }),
+  })
+
+  const data = await res.json()
+  if (!data.success) throw new Error(data.error || 'Error al procesar')
+
+  if (data.data?.length) {
+    addQuickEntries(data.data)
+  }
+
+  return data
+}
