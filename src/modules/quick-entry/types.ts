@@ -12,5 +12,7 @@ export interface QuickEntry {
 
 export interface AppSettings {
   openAiKey: string
+  geminiKey: string
+  aiProvider: 'openai' | 'gemini'
   apiToken: string
 }

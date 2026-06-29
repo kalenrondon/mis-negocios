@@ -1,26 +1,31 @@
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { ArrowLeft, Key, Smartphone, Shield, Eye, EyeOff, Copy, Check, ExternalLink, PenBox } from 'lucide-react'
+import { ArrowLeft, Smartphone, Shield, Eye, EyeOff, Copy, Check, ExternalLink, PenBox, Sparkles } from 'lucide-react'
 import { getSettings, saveSettings, generateApiToken, API_URL, useQuickEntries, clearQuickEntries } from '../modules/quick-entry/store'
 
 export default function SettingsPage() {
   const navigate = useNavigate()
   const { entries } = useQuickEntries()
   const [openAiKey, setOpenAiKey] = useState('')
+  const [geminiKey, setGeminiKey] = useState('')
+  const [aiProvider, setAiProvider] = useState<'openai' | 'gemini'>('gemini')
   const [apiToken, setApiToken] = useState('')
-  const [showKey, setShowKey] = useState(false)
+  const [showOpenAi, setShowOpenAi] = useState(false)
+  const [showGemini, setShowGemini] = useState(false)
   const [showToken, setShowToken] = useState(false)
-  const [copied, setCopied] = useState<'key' | 'token' | null>(null)
+  const [copied, setCopied] = useState<'openai' | 'gemini' | 'token' | null>(null)
   const [saved, setSaved] = useState(false)
 
   useEffect(() => {
     const s = getSettings()
     setOpenAiKey(s.openAiKey)
+    setGeminiKey(s.geminiKey)
+    setAiProvider(s.aiProvider || 'gemini')
     setApiToken(s.apiToken)
   }, [])
 
   function handleSave() {
-    saveSettings({ openAiKey, apiToken })
+    saveSettings({ openAiKey, geminiKey, aiProvider, apiToken })
     setSaved(true)
     setTimeout(() => setSaved(false), 2000)
   }
@@ -28,12 +33,12 @@ export default function SettingsPage() {
   function handleGenerateToken() {
     const token = generateApiToken()
     setApiToken(token)
-    saveSettings({ openAiKey, apiToken: token })
+    saveSettings({ openAiKey, geminiKey, aiProvider, apiToken: token })
     setSaved(true)
     setTimeout(() => setSaved(false), 2000)
   }
 
-  async function copyToClipboard(text: string, type: 'key' | 'token') {
+  async function copyToClipboard(text: string, type: 'openai' | 'gemini' | 'token') {
     await navigator.clipboard.writeText(text)
     setCopied(type)
     setTimeout(() => setCopied(null), 2000)
@@ -48,32 +53,59 @@ export default function SettingsPage() {
 
       <div className="space-y-6 max-w-2xl">
         <div className="bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700 p-4">
-          <h2 className="font-semibold text-slate-700 dark:text-slate-300 mb-4 flex items-center gap-2"><Key size={18} className="text-amber-500" /> API de OpenAI</h2>
-          <p className="text-sm text-slate-500 dark:text-slate-400 mb-3">
-            Necesitás una API Key de OpenAI para que la IA procese el texto. Obtenela en{' '}
-            <a href="https://platform.openai.com/api-keys" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:text-blue-700 dark:text-blue-400 inline-flex items-center gap-0.5">
-              platform.openai.com <ExternalLink size={12} />
-            </a>
-          </p>
-          <div className="flex gap-2">
-            <div className="relative flex-1">
-              <input
-                type={showKey ? 'text' : 'password'}
-                value={openAiKey}
-                onChange={e => { setOpenAiKey(e.target.value); setSaved(false) }}
-                placeholder="sk-..."
-                className="w-full px-3 py-2 pr-20 rounded-lg border border-slate-300 dark:border-slate-600 dark:bg-slate-700 dark:text-white text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 font-mono"
-              />
-              <div className="absolute right-1 top-1/2 -translate-y-1/2 flex gap-1">
-                <button onClick={() => copyToClipboard(openAiKey, 'key')} className="p-1.5 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200" title="Copiar">
-                  {copied === 'key' ? <Check size={16} className="text-green-500" /> : <Copy size={16} />}
-                </button>
-                <button onClick={() => setShowKey(!showKey)} className="p-1.5 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200">
-                  {showKey ? <EyeOff size={16} /> : <Eye size={16} />}
-                </button>
+          <h2 className="font-semibold text-slate-700 dark:text-slate-300 mb-4 flex items-center gap-2"><Sparkles size={18} className="text-purple-500" /> Proveedor de IA</h2>
+          <div className="flex gap-2 mb-4">
+            <button onClick={() => setAiProvider('gemini')} className={`flex-1 py-2 px-3 rounded-lg text-sm font-medium border transition-colors ${aiProvider === 'gemini' ? 'bg-purple-600 text-white border-purple-600' : 'bg-white dark:bg-slate-700 text-slate-600 dark:text-slate-300 border-slate-300 dark:border-slate-600 hover:border-purple-400'}`}>
+              Gemini (gratis) ✨
+            </button>
+            <button onClick={() => setAiProvider('openai')} className={`flex-1 py-2 px-3 rounded-lg text-sm font-medium border transition-colors ${aiProvider === 'openai' ? 'bg-green-600 text-white border-green-600' : 'bg-white dark:bg-slate-700 text-slate-600 dark:text-slate-300 border-slate-300 dark:border-slate-600 hover:border-green-400'}`}>
+              OpenAI
+            </button>
+          </div>
+
+          {aiProvider === 'gemini' && (
+            <div>
+              <p className="text-sm text-slate-500 dark:text-slate-400 mb-3">
+                Usá Gemini de Google, <strong>totalmente gratis</strong>. Obtené tu API Key en{' '}
+                <a href="https://aistudio.google.com/apikey" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:text-blue-700 dark:text-blue-400 inline-flex items-center gap-0.5">
+                  aistudio.google.com <ExternalLink size={12} />
+                </a>
+              </p>
+              <div className="relative">
+                <input type={showGemini ? 'text' : 'password'} value={geminiKey} onChange={e => { setGeminiKey(e.target.value); setSaved(false) }} placeholder="AIzaSy..." className="w-full px-3 py-2 pr-20 rounded-lg border border-slate-300 dark:border-slate-600 dark:bg-slate-700 dark:text-white text-sm focus:outline-none focus:ring-2 focus:ring-purple-500 font-mono" />
+                <div className="absolute right-1 top-1/2 -translate-y-1/2 flex gap-1">
+                  <button onClick={() => copyToClipboard(geminiKey, 'gemini')} className="p-1.5 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200" title="Copiar">
+                    {copied === 'gemini' ? <Check size={16} className="text-green-500" /> : <Copy size={16} />}
+                  </button>
+                  <button onClick={() => setShowGemini(!showGemini)} className="p-1.5 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200">
+                    {showGemini ? <EyeOff size={16} /> : <Eye size={16} />}
+                  </button>
+                </div>
               </div>
             </div>
-          </div>
+          )}
+
+          {aiProvider === 'openai' && (
+            <div>
+              <p className="text-sm text-slate-500 dark:text-slate-400 mb-3">
+                Necesitás una API Key de OpenAI. Obtenela en{' '}
+                <a href="https://platform.openai.com/api-keys" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:text-blue-700 dark:text-blue-400 inline-flex items-center gap-0.5">
+                  platform.openai.com <ExternalLink size={12} />
+                </a>
+              </p>
+              <div className="relative">
+                <input type={showOpenAi ? 'text' : 'password'} value={openAiKey} onChange={e => { setOpenAiKey(e.target.value); setSaved(false) }} placeholder="sk-..." className="w-full px-3 py-2 pr-20 rounded-lg border border-slate-300 dark:border-slate-600 dark:bg-slate-700 dark:text-white text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 font-mono" />
+                <div className="absolute right-1 top-1/2 -translate-y-1/2 flex gap-1">
+                  <button onClick={() => copyToClipboard(openAiKey, 'openai')} className="p-1.5 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200" title="Copiar">
+                    {copied === 'openai' ? <Check size={16} className="text-green-500" /> : <Copy size={16} />}
+                  </button>
+                  <button onClick={() => setShowOpenAi(!showOpenAi)} className="p-1.5 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200">
+                    {showOpenAi ? <EyeOff size={16} /> : <Eye size={16} />}
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
         </div>
 
         <div className="bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700 p-4">
@@ -84,12 +116,7 @@ export default function SettingsPage() {
           {apiToken ? (
             <div className="flex gap-2">
               <div className="relative flex-1">
-                <input
-                  type={showToken ? 'text' : 'password'}
-                  value={apiToken}
-                  readOnly
-                  className="w-full px-3 py-2 pr-20 rounded-lg border border-slate-300 dark:border-slate-600 dark:bg-slate-700 dark:text-white text-sm focus:outline-none font-mono text-xs"
-                />
+                <input type={showToken ? 'text' : 'password'} value={apiToken} readOnly className="w-full px-3 py-2 pr-20 rounded-lg border border-slate-300 dark:border-slate-600 dark:bg-slate-700 dark:text-white text-sm focus:outline-none font-mono text-xs" />
                 <div className="absolute right-1 top-1/2 -translate-y-1/2 flex gap-1">
                   <button onClick={() => copyToClipboard(apiToken, 'token')} className="p-1.5 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200" title="Copiar">
                     {copied === 'token' ? <Check size={16} className="text-green-500" /> : <Copy size={16} />}
@@ -122,7 +149,7 @@ export default function SettingsPage() {
             </div>
 
             <div>
-              <h3 className="font-medium text-slate-700 dark:text-slate-300 mb-2">Configuración en Atajos (Shortcuts)</h3>
+              <h3 className="font-medium text-slate-700 dark:text-slate-300 mb-2">Atajo por voz (con IA)</h3>
               <ol className="list-decimal list-inside space-y-2">
                 <li>Abrí la app <strong>Atajos</strong> en tu iPhone</li>
                 <li>Tocá <strong>+</strong> para crear un nuevo atajo</li>
@@ -135,8 +162,8 @@ export default function SettingsPage() {
                     <p>Cuerpo JSON: <strong>{'{"text": "Dictado", "device": "iphone"}'}</strong></p>
                     <p className="mt-2">Encabezados:</p>
                     <p className="ml-2"><strong>Authorization:</strong> Bearer TU_TOKEN</p>
-                    <p className="ml-2"><strong>X-OpenAI-Key:</strong> TU_OPENAI_KEY</p>
                     <p className="ml-2"><strong>X-User-Id:</strong> TU_TOKEN</p>
+                    <p className="text-green-600 dark:text-green-400 mt-1">✓ No hace falta OpenAI/Gemini key si está seteada en Vercel</p>
                   </div>
                 </li>
                 <li>Agregá <strong>"Obtener contenido de..."</strong> y seleccioná Contenido de la solicitud</li>
@@ -148,7 +175,7 @@ export default function SettingsPage() {
             <div className="bg-amber-50 dark:bg-amber-900/20 rounded-lg p-3 border border-amber-200 dark:border-amber-800">
               <p className="font-medium text-amber-700 dark:text-amber-300 mb-1">💡 Widget</p>
               <p className="text-xs">
-                En tu iPhone, mantené presionado la pantalla de inicio, tocá <strong>+</strong>, buscá <strong>Atajos</strong>, seleccioná el widget, y elegí el atajo <strong>"➕ Registrar Movimiento"</strong>. 
+                En tu iPhone, mantené presionado la pantalla de inicio, tocá <strong>+</strong>, buscá <strong>Atajos</strong>, seleccioná el widget, y elegí el atajo <strong>"➕ Registrar Movimiento"</strong>.
                 Al tocar el widget se activará el dictado por voz y se registrará el movimiento automáticamente.
               </p>
             </div>
@@ -156,9 +183,9 @@ export default function SettingsPage() {
         </div>
 
         <div className="bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700 p-4">
-          <h2 className="font-semibold text-slate-700 dark:text-slate-300 mb-4 flex items-center gap-2"><PenBox size={18} className="text-purple-500" /> Modo Manual (sin OpenAI)</h2>
+          <h2 className="font-semibold text-slate-700 dark:text-slate-300 mb-4 flex items-center gap-2"><PenBox size={18} className="text-purple-500" /> Modo Manual (sin IA)</h2>
           <p className="text-sm text-slate-500 dark:text-slate-400 mb-3">
-            Sin API Key de OpenAI. Creá un Atajo que envíe los datos directamente.
+            Sin API Key. Creá un Atajo que envíe los datos directamente.
           </p>
           <ol className="list-decimal list-inside space-y-2 text-sm text-slate-600 dark:text-slate-400">
             <li>Abrí la app <strong>Atajos</strong> en tu iPhone</li>
@@ -180,7 +207,6 @@ export default function SettingsPage() {
                 <p className="mt-2">Encabezados:</p>
                 <p className="ml-2"><strong>Authorization:</strong> Bearer TU_TOKEN</p>
                 <p className="ml-2"><strong>X-User-Id:</strong> TU_TOKEN</p>
-                <p className="text-amber-600 dark:text-amber-400 mt-1">⚠ Sin X-OpenAI-Key = modo manual</p>
               </div>
             </li>
             <li>Agregá <strong>"Mostrar notificación"</strong> con el resultado</li>

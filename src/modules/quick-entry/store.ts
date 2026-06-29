@@ -42,7 +42,7 @@ export function getSettings(): AppSettings {
     const raw = localStorage.getItem(SETTINGS_KEY)
     if (raw) return JSON.parse(raw)
   } catch {}
-  return { openAiKey: '', apiToken: '' }
+  return { openAiKey: '', geminiKey: '', aiProvider: 'openai', apiToken: '' }
 }
 
 export function saveSettings(s: AppSettings) {
@@ -75,27 +75,27 @@ export const API_URL = `${window.location.origin}/api/quick-entry`
 
 export async function sendQuickEntry(text: string, device = 'web') {
   const settings = getSettings()
-  if (!settings.openAiKey) throw new Error('Configurá tu API Key de OpenAI en Ajustes')
   if (!settings.apiToken) throw new Error('Generá un token de API en Ajustes')
+  if (!settings.openAiKey && !settings.geminiKey) throw new Error('Configurá una API Key de OpenAI o Gemini en Ajustes')
+
+  const headers: Record<string, string> = {
+    'Content-Type': 'application/json',
+    'Authorization': `Bearer ${settings.apiToken}`,
+    'X-User-Id': settings.apiToken,
+  }
+  if (settings.geminiKey) {
+    headers['X-Gemini-Key'] = settings.geminiKey
+  } else if (settings.openAiKey) {
+    headers['X-OpenAI-Key'] = settings.openAiKey
+  }
 
   const res = await fetch(API_URL, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      'Authorization': `Bearer ${settings.apiToken}`,
-      'X-OpenAI-Key': settings.openAiKey,
-      'X-User-Id': settings.apiToken,
-    },
-    body: JSON.stringify({ text, device }),
+    method: 'POST', headers, body: JSON.stringify({ text, device }),
   })
 
   const data = await res.json()
   if (!data.success) throw new Error(data.error || 'Error al procesar')
-
-  if (data.data?.length) {
-    addQuickEntries(data.data)
-  }
-
+  if (data.data?.length) addQuickEntries(data.data)
   return data
 }
 
