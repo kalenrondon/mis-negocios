@@ -1,8 +1,9 @@
-import { useState } from 'react'
+import { useState, useMemo } from 'react'
 import { useGastosPersonalesStore, addMovimiento, deleteMovimiento, setPresupuesto } from '../store'
 import { formatMoney } from '../../trading/utils'
 import type { CategoriaGasto, CategoriaIngreso } from '../types'
-import { TrendingUp, TrendingDown, DollarSign, PiggyBank, Plus, Trash2, ArrowLeft, ChevronLeft, ChevronRight } from 'lucide-react'
+import { TrendingUp, TrendingDown, DollarSign, PiggyBank, Plus, Trash2, ArrowLeft, ChevronLeft, ChevronRight, BarChart3 } from 'lucide-react'
+import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Legend } from 'recharts'
 import { useNavigate } from 'react-router-dom'
 import MoneyInput from '../../../components/MoneyInput'
 
@@ -39,7 +40,7 @@ function cambiarMes(mes: string, dif: number): string {
 
 function GastosPersonalesPageInner() {
   const navigate = useNavigate()
-  const { getResumenDelMes, getMovimientosDelMes } = useGastosPersonalesStore()
+  const { state, getResumenDelMes, getMovimientosDelMes } = useGastosPersonalesStore()
   const [fecha, setFecha] = useState(new Date().toISOString().slice(0, 10))
   const [tipo, setTipo] = useState<'gasto' | 'ingreso'>('gasto')
   const [categoria, setCategoria] = useState('Comida')
@@ -52,6 +53,18 @@ function GastosPersonalesPageInner() {
   const resumen = getResumenDelMes(mesSeleccionado)
   const movimientos = getMovimientosDelMes(mesSeleccionado)
   const ordenados = [...movimientos].sort((a, b) => b.fecha.localeCompare(a.fecha) || b.id.localeCompare(a.id))
+
+  const datosEvolucion = useMemo(() => {
+    const meses: { mes: string; label: string; ingresos: number; gastos: number }[] = []
+    for (let i = 5; i >= 0; i--) {
+      const d = new Date()
+      d.setMonth(d.getMonth() - i)
+      const m = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`
+      const r = getResumenDelMes(m)
+      meses.push({ mes: m, label: labelMes(m).split(' ')[0].slice(0, 3) + ' ' + String(d.getFullYear()).slice(2), ingresos: r.ingresos, gastos: r.gastos })
+    }
+    return meses
+  }, [state])
 
   const gastosCat = resumen.porCategoria.filter((c) => c.tipo === 'gasto')
   const maxGasto = Math.max(...gastosCat.map((c) => c.total), 1)
@@ -123,6 +136,20 @@ function GastosPersonalesPageInner() {
           </div>
         </div>
       )}
+
+      <div className="bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700 p-4 mb-6">
+        <h2 className="font-semibold text-slate-700 dark:text-slate-300 mb-4 flex items-center gap-2"><BarChart3 size={18} /> Evolución Mensual</h2>
+        <ResponsiveContainer width="100%" height={250}>
+          <BarChart data={datosEvolucion}>
+            <XAxis dataKey="label" tick={{ fontSize: 11 }} stroke="#94a3b8" />
+            <YAxis tick={{ fontSize: 11 }} stroke="#94a3b8" tickFormatter={(v) => `$${(v / 1000).toFixed(0)}k`} />
+            <Tooltip formatter={(v: any) => formatMoney(Number(v))} />
+            <Legend />
+            <Bar dataKey="ingresos" name="Ingresos" fill="#16a34a" radius={[4, 4, 0, 0]} />
+            <Bar dataKey="gastos" name="Gastos" fill="#dc2626" radius={[4, 4, 0, 0]} />
+          </BarChart>
+        </ResponsiveContainer>
+      </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
         <div className="lg:col-span-2 bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700 p-4">

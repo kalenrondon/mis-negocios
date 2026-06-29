@@ -2,7 +2,7 @@ import { HashRouter, Routes, Route } from 'react-router-dom'
 import Layout from './components/Layout'
 import AuthGuard from './components/AuthGuard'
 import Dashboard from './pages/Dashboard'
-import Placeholder from './pages/Placeholder'
+import BordadoPage from './modules/bordado/pages/BordadoPage'
 import PollosDashboard from './modules/pollos/pages/PollosDashboard'
 import LoteFormPage from './modules/pollos/pages/LoteFormPage'
 import LoteDetailPage from './modules/pollos/pages/LoteDetailPage'
@@ -49,7 +49,7 @@ export default function App() {
             <Route path="/recordatorios" element={<RecordatoriosPage />} />
             <Route path="/notas" element={<NotasPage />} />
             <Route path="/gastos-personales" element={<GastosPersonalesPage />} />
-            <Route path="/bordado" element={<Placeholder title="Bordado" />} />
+            <Route path="/bordado" element={<BordadoPage />} />
           </Route>
         </Routes>
       </HashRouter>
