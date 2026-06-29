@@ -82,7 +82,7 @@ export async function POST(req: Request) {
 
   try {
     const token = req.headers.get('authorization')?.replace('Bearer ', '')
-    const openAIKey = req.headers.get('x-openai-key')
+    const openAIKey = req.headers.get('x-openai-key') || process.env.OPENAI_API_KEY || ''
     const userId = req.headers.get('x-user-id')
 
     const body = await req.json()
