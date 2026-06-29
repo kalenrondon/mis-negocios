@@ -1,10 +1,11 @@
 import { useState } from 'react'
 import { useNotasStore, addNota, updateNota, deleteNota } from '../store'
-import { FileText, Plus, Trash2, Edit2, X, Save } from 'lucide-react'
+import { FileText, Plus, Trash2, Edit2, X, Save, Search } from 'lucide-react'
 
 export default function NotasPage() {
   const { ordenadas } = useNotasStore()
   const [editId, setEditId] = useState<string | null>(null)
+  const [busquedaNotas, setBusquedaNotas] = useState('')
   const [titulo, setTitulo] = useState('')
   const [contenido, setContenido] = useState('')
 
@@ -44,6 +45,12 @@ export default function NotasPage() {
         </div>
       )}
 
+      {ordenadas.length > 0 && (
+        <div className="relative max-w-xs mb-4">
+          <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
+          <input type="text" value={busquedaNotas} onChange={e => setBusquedaNotas(e.target.value)} placeholder="Buscar notas..." className="w-full pl-9 pr-3 py-2 rounded-lg border border-slate-300 dark:border-slate-600 dark:bg-slate-700 dark:text-white text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" />
+        </div>
+      )}
       {ordenadas.length === 0 && editId !== '__new__' ? (
         <div className="text-center py-12 text-slate-400 dark:text-slate-500">
           <FileText size={48} className="mx-auto mb-3 opacity-50" />
@@ -52,7 +59,7 @@ export default function NotasPage() {
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
-          {ordenadas.map((n) => (
+          {ordenadas.filter(n => !busquedaNotas || n.titulo.toLowerCase().includes(busquedaNotas.toLowerCase()) || n.contenido.toLowerCase().includes(busquedaNotas.toLowerCase())).map((n) => (
             <div key={n.id} className="bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700 p-4 hover:shadow-md transition-shadow">
               {editId === n.id ? (
                 <div className="space-y-3">

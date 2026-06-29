@@ -24,6 +24,7 @@ import RecordatoriosPage from './modules/recordatorios/pages/RecordatoriosPage'
 import NotasPage from './modules/notas/pages/NotasPage'
 import GastosPersonalesPage from './modules/gastos-personales/pages/GastosPersonalesPage'
 import UniversidadPage from './modules/universidad/pages/UniversidadPage'
+import NotFound from './pages/NotFound'
 
 export default function App() {
   return (
@@ -54,6 +55,7 @@ export default function App() {
             <Route path="/auto" element={<AutoPage />} />
             <Route path="/bordado" element={<BordadoPage />} />
             <Route path="/universidad" element={<UniversidadPage />} />
+            <Route path="*" element={<NotFound />} />
           </Route>
         </Routes>
       </HashRouter>

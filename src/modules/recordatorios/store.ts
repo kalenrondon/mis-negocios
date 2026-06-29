@@ -54,8 +54,14 @@ export function useRecordatoriosStore() {
   const pendientes = state.filter((r) => !r.completado).sort((a, b) => a.fecha.localeCompare(b.fecha) || a.hora.localeCompare(b.hora))
   const completados = state.filter((r) => r.completado).sort((a, b) => b.fecha.localeCompare(a.fecha) || b.hora.localeCompare(a.hora))
   const proximos = pendientes.filter((r) => {
-    const d = new Date(`${r.fecha}T${r.hora || '00:00'}`)
-    return d >= new Date() && d <= new Date(Date.now() + 7 * 24 * 60 * 60 * 1000)
+    const today = new Date(); today.setHours(0, 0, 0, 0)
+    const upper = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000)
+    if (!r.hora) {
+      const d = new Date(r.fecha + 'T00:00:00')
+      return d >= today && d <= upper
+    }
+    const d = new Date(`${r.fecha}T${r.hora}`)
+    return d >= new Date() && d <= upper
   })
   return { state, pendientes, completados, proximos }
 }

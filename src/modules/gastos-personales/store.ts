@@ -105,9 +105,26 @@ function getMetasSnapshot() {
   return metaStore
 }
 
+function getPresupuestoSnapshot() {
+  return presupuestoStore
+}
+
 export function useGastosPersonalesStore() {
   const movimientos = useSyncExternalStore(subscribe, getSnapshot, getSnapshot)
   const metas = useSyncExternalStore(subscribe, getMetasSnapshot, getMetasSnapshot)
+  const presupuestos = useSyncExternalStore(subscribe, getPresupuestoSnapshot, getPresupuestoSnapshot)
+
+  const getResumenDelMesFn = (mes: string) => {
+    const delMes = movimientos.filter((m) => m.fecha.startsWith(mes))
+    const ingresos = delMes.filter((m) => m.tipo === 'ingreso').reduce((s, m) => s + m.monto, 0)
+    const gastos = delMes.filter((m) => m.tipo === 'gasto').reduce((s, m) => s + m.monto, 0)
+    const porCategoria = [...new Set(delMes.map((m) => m.categoria))].map((cat) => {
+      const items = delMes.filter((m) => m.categoria === cat)
+      return { categoria: cat, total: items.reduce((s, m) => s + m.monto, 0), cantidad: items.length, tipo: items[0]?.tipo || 'gasto' }
+    }).sort((a, b) => b.total - a.total)
+    const presupuesto = presupuestos.find((p) => p.mes === mes)?.presupuesto || 0
+    return { ingresos, gastos, balance: ingresos - gastos, porCategoria, presupuesto, usadoPresupuesto: presupuesto > 0 ? (gastos / presupuesto) * 100 : 0 }
+  }
 
   return {
     state: movimientos,
@@ -115,16 +132,6 @@ export function useGastosPersonalesStore() {
     totalIngresos: movimientos.filter((m) => m.tipo === 'ingreso').reduce((s, m) => s + m.monto, 0),
     totalGastos: movimientos.filter((m) => m.tipo === 'gasto').reduce((s, m) => s + m.monto, 0),
     getMovimientosDelMes: (mes: string) => movimientos.filter((m) => m.fecha.startsWith(mes)),
-    getResumenDelMes: (mes: string) => {
-      const delMes = movimientos.filter((m) => m.fecha.startsWith(mes))
-      const ingresos = delMes.filter((m) => m.tipo === 'ingreso').reduce((s, m) => s + m.monto, 0)
-      const gastos = delMes.filter((m) => m.tipo === 'gasto').reduce((s, m) => s + m.monto, 0)
-      const porCategoria = [...new Set(delMes.map((m) => m.categoria))].map((cat) => {
-        const items = delMes.filter((m) => m.categoria === cat)
-        return { categoria: cat, total: items.reduce((s, m) => s + m.monto, 0), cantidad: items.length, tipo: items[0]?.tipo || 'gasto' }
-      }).sort((a, b) => b.total - a.total)
-      const presupuesto = presupuestoStore.find((p) => p.mes === mes)?.presupuesto || 0
-      return { ingresos, gastos, balance: ingresos - gastos, porCategoria, presupuesto, usadoPresupuesto: presupuesto > 0 ? (gastos / presupuesto) * 100 : 0 }
-    },
+    getResumenDelMes: getResumenDelMesFn,
   }
 }

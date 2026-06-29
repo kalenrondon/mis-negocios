@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
 import { useRecordatoriosStore, addRecordatorio, updateRecordatorio, deleteRecordatorio, toggleCompletado } from '../store'
 import type { Prioridad } from '../types'
-import { Bell, Plus, Trash2, Check, Edit2, X, AlertCircle, AlertTriangle, Info } from 'lucide-react'
+import { Bell, Plus, Trash2, Check, Edit2, X, AlertCircle, AlertTriangle, Info, Search } from 'lucide-react'
 
 function PrioridadBadge({ p }: { p: Prioridad }) {
   const map: Record<Prioridad, { label: string; cls: string; icon: typeof AlertCircle }> = {
@@ -16,6 +16,7 @@ function PrioridadBadge({ p }: { p: Prioridad }) {
 export default function RecordatoriosPage() {
   const { pendientes, completados } = useRecordatoriosStore()
   const [showForm, setShowForm] = useState(false)
+  const [busquedaRec, setBusquedaRec] = useState('')
 
   useEffect(() => {
     const hoy = new Date().toISOString().slice(0, 10)
@@ -100,6 +101,12 @@ export default function RecordatoriosPage() {
         </form>
       )}
 
+      {(pendientes.length > 0 || completados.length > 0) && (
+        <div className="relative max-w-xs mb-4">
+          <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
+          <input type="text" value={busquedaRec} onChange={e => setBusquedaRec(e.target.value)} placeholder="Buscar recordatorios..." className="w-full pl-9 pr-3 py-2 rounded-lg border border-slate-300 dark:border-slate-600 dark:bg-slate-700 dark:text-white text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" />
+        </div>
+      )}
       {pendientes.length === 0 && completados.length === 0 ? (
         <div className="text-center py-12 text-slate-400 dark:text-slate-500">
           <Bell size={48} className="mx-auto mb-3 opacity-50" />
@@ -108,7 +115,7 @@ export default function RecordatoriosPage() {
         </div>
       ) : (
         <div className="space-y-3">
-          {pendientes.map((r) => (
+          {pendientes.filter(r => !busquedaRec || r.titulo.toLowerCase().includes(busquedaRec.toLowerCase()) || (r.descripcion || '').toLowerCase().includes(busquedaRec.toLowerCase())).map((r) => (
             <div key={r.id} className={`bg-white dark:bg-slate-800 rounded-xl shadow-sm border p-4 ${r.fecha === hoy ? 'border-blue-300 dark:border-blue-700' : 'border-slate-200 dark:border-slate-700'}`}>
               <div className="flex items-start justify-between gap-3">
                 <div className="flex items-start gap-3 min-w-0 flex-1">
@@ -143,7 +150,7 @@ export default function RecordatoriosPage() {
                 <span className="text-xs font-medium text-slate-400 dark:text-slate-500">Completados ({completados.length})</span>
                 <div className="h-px flex-1 bg-slate-200 dark:bg-slate-700" />
               </div>
-              {completados.map((r) => (
+              {completados.filter(r => !busquedaRec || r.titulo.toLowerCase().includes(busquedaRec.toLowerCase()) || (r.descripcion || '').toLowerCase().includes(busquedaRec.toLowerCase())).map((r) => (
                 <div key={r.id} className="bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700 p-4 opacity-60 hover:opacity-100 transition-opacity">
                   <div className="flex items-start justify-between gap-3">
                     <div className="flex items-start gap-3 min-w-0 flex-1">

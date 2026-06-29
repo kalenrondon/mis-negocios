@@ -2,13 +2,15 @@ import { useState } from 'react'
 import { useTradingStore, addTrade, deleteTrade } from '../store'
 import { formatMoney, formatNumber } from '../utils'
 import type { ResumenPeriodo } from '../types'
-import { TrendingUp, TrendingDown, DollarSign, BarChart3, Trash2, Plus, Calendar, PieChart, List, Search, ArrowUpCircle, ArrowDownCircle } from 'lucide-react'
+import { TrendingUp, TrendingDown, DollarSign, BarChart3, Trash2, Plus, Calendar, PieChart, List, Search, ArrowUpCircle, ArrowDownCircle, ArrowLeft } from 'lucide-react'
 import MoneyInput from '../../../components/MoneyInput'
+import { useNavigate } from 'react-router-dom'
 
 type PeriodoTab = 'dia' | 'semana' | 'mes' | 'anio'
 type ViewTab = 'periodos' | 'activos' | 'historial'
 
 export default function TradingDashboard() {
+  const navigate = useNavigate()
   const { state, tradesOrdenados, totalGanado, totalPerdido, balance, cantidadTrades, resumenActivos, getResumenPeriodos } = useTradingStore()
 
   const [fecha, setFecha] = useState(new Date().toISOString().slice(0, 10))
@@ -41,7 +43,10 @@ export default function TradingDashboard() {
   return (
     <div>
       <div className="flex items-center justify-between mb-6">
-        <h1 className="text-2xl font-bold text-slate-800 dark:text-white">Trading</h1>
+        <div className="flex items-center gap-3">
+          <button onClick={() => navigate('/')} className="p-1 text-slate-500 hover:text-slate-700 dark:hover:text-slate-300"><ArrowLeft size={20} /></button>
+          <h1 className="text-2xl font-bold text-slate-800 dark:text-white">Trading</h1>
+        </div>
       </div>
 
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">

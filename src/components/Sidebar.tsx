@@ -1,7 +1,7 @@
 import { NavLink } from 'react-router-dom'
 import { LayoutDashboard, Bird, Egg, Fish, Beef, LineChart, Shirt, Bell, FileText, Wallet, Sun, Moon, RefreshCw, LogOut, Download, Upload, X, GraduationCap, Car, Sprout, ChevronDown, ChevronRight } from 'lucide-react'
 import { useState, useEffect } from 'react'
-import { pushAllToSupabase, pullAllFromSupabase } from '../lib/sync-manager'
+import { pushAllToSupabase, pullAllFromSupabase, LOCAL_KEYS } from '../lib/sync-manager'
 import { logout } from '../lib/auth-store'
 
 const agroItems = [
@@ -112,20 +112,9 @@ export default function Sidebar({ open, onClose }: { open: boolean; onClose: () 
       <button
         onClick={() => {
           const data: Record<string, any> = {}
-          for (const [table, key] of Object.entries({
-            'pollos-lotes':'pollos_lotes','pollos-bajas':'pollos_bajas','pollos-pesajes':'pollos_pesajes',
-            'pollos-ventas':'pollos_ventas','pollos-empacados':'pollos_empacados','pollos-gastos':'pollos_gastos',
-            'ponedoras-lotes':'ponedoras_lotes','ponedoras-posturas':'ponedoras_posturas','ponedoras-bajas':'ponedoras_bajas',
-            'ponedoras-ventas':'ponedoras_ventas','ponedoras-gastos':'ponedoras_gastos',
-            'tilapias-lotes':'tilapias_lotes','tilapias-bajas':'tilapias_bajas','tilapias-cosechas':'tilapias_cosechas',
-            'tilapias-gastos':'tilapias_gastos','vacuno-lotes':'vacuno_lotes','vacuno-bajas':'vacuno_bajas',
-            'vacuno-ventas':'vacuno_ventas','vacuno-gastos':'vacuno_gastos',
-            'trading-operaciones':'trading_operaciones','recordatorios':'recordatorios','notas':'notas',
-            'auto-tareas':'auto_tareas',
-            'gastos-personales':'gastos_personales','gastos-presupuestos':'gastos_presupuestos',
-          })) {
-            const raw = localStorage.getItem(key)
-            if (raw) data[table] = JSON.parse(raw)
+          for (const [, localKey] of Object.entries(LOCAL_KEYS)) {
+            const raw = localStorage.getItem(localKey)
+            if (raw) data[localKey] = JSON.parse(raw)
           }
           const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' })
           const a = document.createElement('a')

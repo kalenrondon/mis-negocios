@@ -3,7 +3,6 @@ import { useNavigate } from 'react-router-dom'
 import { useUniversidadStore, addMateria, updateMateria, deleteMateria } from '../store'
 import type { Materia } from '../types'
 import { GraduationCap, Plus, Trash2, Pencil, ArrowLeft, Filter, BookOpen, CheckCircle2, XCircle } from 'lucide-react'
-import MoneyInput from '../../../components/MoneyInput'
 
 function parseNum(v: string) { return Number(v) || 0 }
 
@@ -146,15 +145,15 @@ export default function UniversidadPage() {
             <div />
             <div>
               <label className="block text-xs font-medium text-slate-500 dark:text-slate-400 mb-1">Nota 1</label>
-              <MoneyInput value={nota1} onChange={setNota1} placeholder="0" />
+              <input type="number" step="0.01" min="0" max="10" value={nota1} onChange={e => setNota1(e.target.value)} placeholder="0" className="w-full rounded-lg border border-slate-300 dark:border-slate-600 dark:bg-slate-700 dark:text-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" />
             </div>
             <div>
               <label className="block text-xs font-medium text-slate-500 dark:text-slate-400 mb-1">Nota 2</label>
-              <MoneyInput value={nota2} onChange={setNota2} placeholder="0" />
+              <input type="number" step="0.01" min="0" max="10" value={nota2} onChange={e => setNota2(e.target.value)} placeholder="0" className="w-full rounded-lg border border-slate-300 dark:border-slate-600 dark:bg-slate-700 dark:text-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" />
             </div>
             <div>
               <label className="block text-xs font-medium text-slate-500 dark:text-slate-400 mb-1">Nota 3</label>
-              <MoneyInput value={nota3} onChange={setNota3} placeholder="0" />
+              <input type="number" step="0.01" min="0" max="10" value={nota3} onChange={e => setNota3(e.target.value)} placeholder="0" className="w-full rounded-lg border border-slate-300 dark:border-slate-600 dark:bg-slate-700 dark:text-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" />
             </div>
           </div>
           <button type="submit" className="w-full bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700 font-medium">{editId ? 'Guardar Cambios' : 'Agregar Materia'}</button>

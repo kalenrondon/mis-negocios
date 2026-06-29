@@ -8,6 +8,7 @@ export default function LoginPage() {
   const [isRegister, setIsRegister] = useState(false)
   const [error, setError] = useState('')
   const [success, setSuccess] = useState('')
+  const [loading, setLoading] = useState(false)
   const [recordar, setRecordar] = useState(() => !!localStorage.getItem('recordarEmail'))
 
   useEffect(() => {
@@ -23,6 +24,7 @@ export default function LoginPage() {
       setError('Las contraseñas no coinciden')
       return
     }
+    setLoading(true)
     try {
       if (isRegister) {
         await register(email, password)
@@ -32,6 +34,8 @@ export default function LoginPage() {
       }
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Error al iniciar sesión')
+    } finally {
+      setLoading(false)
     }
   }
 
@@ -70,9 +74,10 @@ export default function LoginPage() {
                 className="w-full px-3 py-2 rounded-lg border border-slate-300 dark:border-slate-600 dark:bg-slate-700 dark:text-white text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" />
             </div>
           )}
-          <button type="submit"
-            className="w-full bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700 text-sm font-medium">
-            {isRegister ? 'Crear cuenta' : 'Iniciar sesión'}
+          <button type="submit" disabled={loading}
+            className="w-full bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700 text-sm font-medium disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2">
+            {loading && <svg className="animate-spin h-4 w-4" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" /><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" /></svg>}
+            {loading ? 'Procesando...' : isRegister ? 'Crear cuenta' : 'Iniciar sesión'}
           </button>
         </form>
 

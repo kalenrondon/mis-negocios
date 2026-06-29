@@ -1,8 +1,9 @@
 import { useState } from 'react'
 import { useBordadoStore, addPedido, updatePedido, deletePedido } from '../store'
 import type { PedidoBordado, EstadoPedido, TipoPuntada } from '../types'
-import { Shirt, Plus, X, Search } from 'lucide-react'
+import { Shirt, Plus, X, Search, ArrowLeft } from 'lucide-react'
 import MoneyInput from '../../../components/MoneyInput'
+import { useNavigate } from 'react-router-dom'
 
 const estados: EstadoPedido[] = ['pendiente', 'en_proceso', 'terminado', 'entregado']
 const puntadas: TipoPuntada[] = ['plana', 'cadena', 'cruz', 'realce', 'festón', 'otro']
@@ -17,6 +18,7 @@ const coloresEstado: Record<EstadoPedido, string> = {
 function parseMoney(v: string) { return Number(v) || 0 }
 
 export default function BordadoPage() {
+  const navigate = useNavigate()
   const pedidos = useBordadoStore()
   const [showForm, setShowForm] = useState(false)
   const [editId, setEditId] = useState<string | null>(null)
@@ -31,11 +33,12 @@ export default function BordadoPage() {
   const [fechaIngreso, setFechaIngreso] = useState(new Date().toISOString().slice(0, 10))
   const [fechaEntrega, setFechaEntrega] = useState('')
   const [notas, setNotas] = useState('')
+  const [editEstado, setEditEstado] = useState<EstadoPedido>('pendiente')
 
   function resetForm() {
     setCliente(''); setDescripcion(''); setTipoPuntada('plana'); setCantidad(''); setPrecio(''); setSenia('')
     setFechaIngreso(new Date().toISOString().slice(0, 10)); setFechaEntrega(''); setNotas('')
-    setEditId(null); setShowForm(false)
+    setEditId(null); setEditEstado('pendiente'); setShowForm(false)
   }
 
   function handleSubmit(e: React.FormEvent) {
@@ -53,7 +56,8 @@ export default function BordadoPage() {
   function startEdit(p: PedidoBordado) {
     setEditId(p.id); setCliente(p.cliente); setDescripcion(p.descripcion); setTipoPuntada(p.tipoPuntada)
     setCantidad(String(p.cantidad)); setPrecio(String(p.precioUnitario)); setSenia(String(p.senia))
-    setFechaIngreso(p.fechaIngreso); setFechaEntrega(p.fechaEntrega); setNotas(p.notas); setShowForm(true)
+    setFechaIngreso(p.fechaIngreso); setFechaEntrega(p.fechaEntrega); setNotas(p.notas)
+    setEditEstado(p.estado); setShowForm(true)
   }
 
   const filtrados = pedidos.filter(p => {
@@ -68,7 +72,10 @@ export default function BordadoPage() {
   return (
     <div>
       <div className="flex items-center justify-between mb-6">
-        <h1 className="text-2xl font-bold text-slate-800 dark:text-white">Bordado</h1>
+        <div className="flex items-center gap-3">
+          <button onClick={() => navigate('/')} className="p-1 text-slate-500 hover:text-slate-700 dark:hover:text-slate-300"><ArrowLeft size={20} /></button>
+          <h1 className="text-2xl font-bold text-slate-800 dark:text-white">Bordado</h1>
+        </div>
         <button onClick={() => { resetForm(); setShowForm(true) }} className="flex items-center gap-1 bg-blue-600 text-white px-3 py-1.5 rounded-lg text-sm hover:bg-blue-700"><Plus size={16} /> Nuevo Pedido</button>
       </div>
 
@@ -142,7 +149,7 @@ export default function BordadoPage() {
             {editId && (
               <div>
                 <label className="block text-xs font-medium text-slate-500 dark:text-slate-400 mb-1">Estado</label>
-                <select value={filtroEstado === 'todas' ? 'pendiente' : filtroEstado} onChange={e => { if (editId) updatePedido(editId, { estado: e.target.value as EstadoPedido }) }} className="w-full rounded-lg border border-slate-300 dark:border-slate-600 dark:bg-slate-700 dark:text-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+                <select value={editEstado} onChange={e => { setEditEstado(e.target.value as EstadoPedido); if (editId) updatePedido(editId, { estado: e.target.value as EstadoPedido }) }} className="w-full rounded-lg border border-slate-300 dark:border-slate-600 dark:bg-slate-700 dark:text-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
                   {estados.map(e => <option key={e}>{e}</option>)}
                 </select>
               </div>

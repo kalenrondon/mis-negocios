@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { useGastosPersonalesStore, addMovimiento, deleteMovimiento, setPresupuesto, deletePresupuesto, addMeta, updateMeta, deleteMeta } from '../store'
 import { formatMoney } from '../../trading/utils'
 import type { CategoriaGasto, TipoMeta } from '../types'
-import { TrendingUp, TrendingDown, DollarSign, PiggyBank, Plus, Trash2, ArrowLeft, ChevronLeft, ChevronRight, Target, HandCoins, Wallet, Goal, Pencil } from 'lucide-react'
+import { TrendingUp, TrendingDown, DollarSign, PiggyBank, Plus, Trash2, ArrowLeft, ChevronLeft, ChevronRight, Target, HandCoins, Wallet, Goal, Pencil, Search } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
 import MoneyInput from '../../../components/MoneyInput'
 
@@ -48,6 +48,7 @@ function GastosPersonalesPageInner() {
   const [mesSeleccionado, setMesSeleccionado] = useState(new Date().toISOString().slice(0, 7))
   const [editPresupuesto, setEditPresupuesto] = useState(false)
   const [presupuestoInput, setPresupuestoInput] = useState('')
+  const [busquedaMov, setBusquedaMov] = useState('')
   const [mostrarMetas, setMostrarMetas] = useState(false)
   const [metaForm, setMetaForm] = useState<{ id?: string; tipo: TipoMeta; nombre: string; montoObjetivo: string; montoActual: string; fechaLimite: string; notas: string; estado: 'activo' | 'completado' | 'cancelado' }>({
     tipo: 'meta', nombre: '', montoObjetivo: '', montoActual: '', fechaLimite: '', notas: '', estado: 'activo'
@@ -55,7 +56,10 @@ function GastosPersonalesPageInner() {
 
   const resumen = getResumenDelMes(mesSeleccionado)
   const movimientos = getMovimientosDelMes(mesSeleccionado)
-  const ordenados = [...movimientos].sort((a, b) => b.fecha.localeCompare(a.fecha) || b.id.localeCompare(a.id))
+  const filtradosMov = busquedaMov
+    ? movimientos.filter(m => m.descripcion.toLowerCase().includes(busquedaMov.toLowerCase()) || m.categoria.toLowerCase().includes(busquedaMov.toLowerCase()))
+    : movimientos
+  const ordenados = [...filtradosMov].sort((a, b) => b.fecha.localeCompare(a.fecha) || b.id.localeCompare(a.id))
 
   const gastosCat = resumen.porCategoria.filter((c) => c.tipo === 'gasto')
   const maxGasto = Math.max(...gastosCat.map((c) => c.total), 1)
@@ -385,7 +389,13 @@ function GastosPersonalesPageInner() {
         </div>
       )}
       <div className="bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700 p-4">
-        <h2 className="font-semibold text-slate-700 dark:text-slate-300 mb-3">Movimientos de {labelMes(mesSeleccionado)}</h2>
+        <div className="flex items-center justify-between mb-3">
+          <h2 className="font-semibold text-slate-700 dark:text-slate-300">Movimientos de {labelMes(mesSeleccionado)}</h2>
+          <div className="relative max-w-[180px]">
+            <Search size={14} className="absolute left-2.5 top-1/2 -translate-y-1/2 text-slate-400" />
+            <input type="text" value={busquedaMov} onChange={e => setBusquedaMov(e.target.value)} placeholder="Buscar..." className="w-full pl-8 pr-3 py-1.5 text-xs rounded-lg border border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-700 text-slate-800 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500" />
+          </div>
+        </div>
         {ordenados.length === 0 ? (
           <p className="text-sm text-slate-400 dark:text-slate-500 text-center py-8">Sin movimientos este mes</p>
         ) : (
