@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Bird, Egg, Fish, Beef, LineChart, Shirt, Bell, FileText, ArrowRight, Wallet, Plus, GraduationCap, Car, ChevronDown, ChevronRight } from 'lucide-react'
+import { Bird, Egg, Fish, Beef, LineChart, Shirt, Bell, FileText, ArrowRight, Wallet, GraduationCap, Car, ChevronDown, ChevronRight } from 'lucide-react'
 import { Link } from 'react-router-dom'
 import { useRecordatoriosStore } from '../modules/recordatorios/store'
 import { useNotasStore } from '../modules/notas/store'
@@ -55,14 +55,9 @@ export default function Dashboard() {
 
   return (
     <div>
-      <div className="flex items-start justify-between mb-8">
-        <div>
-          <h1 className="text-2xl font-bold text-slate-800 dark:text-white">{saludo} 👋</h1>
-          <p className="text-slate-500 dark:text-slate-400 capitalize">{hoy}</p>
-        </div>
-        <button onClick={() => setQuickOpen(true)} className="hidden sm:flex items-center gap-2 bg-blue-600 text-white px-4 py-2 rounded-xl hover:bg-blue-700 text-sm font-medium shadow-sm">
-          <Plus size={18} /> Agregar
-        </button>
+      <div className="mb-8">
+        <h1 className="text-2xl font-bold text-slate-800 dark:text-white">{saludo} 👋</h1>
+        <p className="text-slate-500 dark:text-slate-400 capitalize">{hoy}</p>
       </div>
       {quickOpen && <QuickAddModal onClose={() => setQuickOpen(false)} />}
 

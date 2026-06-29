@@ -23,7 +23,7 @@ export default function QuickAddModal({ onClose }: { onClose: () => void }) {
   return (
     <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center">
       <div className="fixed inset-0 bg-black/50" onClick={onClose} />
-      <div className="relative bg-white dark:bg-slate-800 w-full sm:max-w-md rounded-t-2xl sm:rounded-2xl shadow-2xl border border-slate-200 dark:border-slate-700 p-5 max-h-[85vh] min-h-[420px] overflow-y-auto">
+      <div className="relative bg-white dark:bg-slate-800 w-full sm:max-w-md rounded-t-2xl sm:rounded-2xl shadow-2xl border border-slate-200 dark:border-slate-700 p-5 max-h-[85vh] overflow-y-auto">
         <div className="flex items-center justify-between mb-4">
           <h2 className="text-lg font-bold text-slate-800 dark:text-white">Agregar Rápido</h2>
           <button onClick={onClose} className="p-1.5 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200"><X size={20} /></button>
@@ -33,9 +33,11 @@ export default function QuickAddModal({ onClose }: { onClose: () => void }) {
             <button key={t.id} onClick={() => setTab(t.id)} className={`flex-1 py-2 text-sm font-medium rounded-md transition-colors ${tab === t.id ? 'bg-white dark:bg-slate-600 text-slate-800 dark:text-white shadow-sm' : 'text-slate-500 dark:text-slate-400'}`}>{t.label}</button>
           ))}
         </div>
-        {tab === 'gasto' && <GastoForm onClose={onClose} />}
-        {tab === 'nota' && <NotaForm onClose={onClose} />}
-        {tab === 'recordatorio' && <RecordatorioForm onClose={onClose} />}
+        <div className="min-h-[380px]">
+          {tab === 'gasto' && <GastoForm onClose={onClose} />}
+          {tab === 'nota' && <NotaForm onClose={onClose} />}
+          {tab === 'recordatorio' && <RecordatorioForm onClose={onClose} />}
+        </div>
       </div>
     </div>
   )
@@ -100,14 +102,14 @@ function NotaForm({ onClose }: { onClose: () => void }) {
   }
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-3">
+    <form onSubmit={handleSubmit} className="space-y-3 min-h-[340px] flex flex-col">
       <div>
         <label className="block text-xs font-medium text-slate-500 dark:text-slate-400 mb-1">Título</label>
         <input type="text" required value={titulo} onChange={e => setTitulo(e.target.value)} placeholder="Título de la nota" className="w-full px-3 py-2 rounded-lg border border-slate-300 dark:border-slate-600 dark:bg-slate-700 dark:text-white text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" />
       </div>
-      <div>
+      <div className="flex-1">
         <label className="block text-xs font-medium text-slate-500 dark:text-slate-400 mb-1">Contenido</label>
-        <textarea value={contenido} onChange={e => setContenido(e.target.value)} rows={3} placeholder="Escribí algo..." className="w-full px-3 py-2 rounded-lg border border-slate-300 dark:border-slate-600 dark:bg-slate-700 dark:text-white text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none" />
+        <textarea value={contenido} onChange={e => setContenido(e.target.value)} rows={3} placeholder="Escribí algo..." className="w-full px-3 py-2 rounded-lg border border-slate-300 dark:border-slate-600 dark:bg-slate-700 dark:text-white text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none h-full min-h-[80px]" />
       </div>
       <button type="submit" className="w-full bg-blue-600 text-white py-2.5 rounded-lg hover:bg-blue-700 text-sm font-medium">Crear Nota</button>
     </form>
@@ -128,7 +130,7 @@ function RecordatorioForm({ onClose }: { onClose: () => void }) {
   }
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-3">
+    <form onSubmit={handleSubmit} className="space-y-3 min-h-[340px]">
       <div>
         <label className="block text-xs font-medium text-slate-500 dark:text-slate-400 mb-1">Título</label>
         <input type="text" required value={titulo} onChange={e => setTitulo(e.target.value)} placeholder="Ej: Pagar factura" className="w-full px-3 py-2 rounded-lg border border-slate-300 dark:border-slate-600 dark:bg-slate-700 dark:text-white text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" />
