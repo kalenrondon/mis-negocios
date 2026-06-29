@@ -54,23 +54,17 @@ async function callOpenAI(apiKey: string, text: string) {
   return JSON.parse(cleaned)
 }
 
-export default async function handler(req: Request) {
-  if (req.method === 'OPTIONS') {
-    return new Response(null, {
-      headers: {
-        'Access-Control-Allow-Origin': '*',
-        'Access-Control-Allow-Methods': 'POST, OPTIONS',
-        'Access-Control-Allow-Headers': 'Authorization, Content-Type, X-OpenAI-Key, X-User-Id',
-      },
-    })
-  }
+export async function OPTIONS() {
+  return new Response(null, {
+    headers: {
+      'Access-Control-Allow-Origin': '*',
+      'Access-Control-Allow-Methods': 'POST, OPTIONS',
+      'Access-Control-Allow-Headers': 'Authorization, Content-Type, X-OpenAI-Key, X-User-Id',
+    },
+  })
+}
 
-  if (req.method !== 'POST') {
-    return new Response(JSON.stringify({ success: false, error: 'Method not allowed' }), {
-      status: 405,
-      headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' },
-    })
-  }
+export async function POST(req: Request) {
 
   try {
     const token = req.headers.get('authorization')?.replace('Bearer ', '')
